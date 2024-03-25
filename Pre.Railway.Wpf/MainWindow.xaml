@@ -1,0 +1,53 @@
+﻿<Window x:Class="Pre.Railway.Wpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Pre.Railway.Wpf"
+        mc:Ignorable="d"
+        Title="NMBS - SNCB" Height="530" Width="800" >
+    <Grid x:Name="myGrid" Margin="0,0,0,0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="250"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"></RowDefinition>
+            <RowDefinition Height="1*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Grid.ColumnSpan="2" Background="Black" >
+
+            <Label Content="... Welkom ..." 
+                Name="lblInfo" Margin="5" Style="{StaticResource lblAnnouncements}"  HorizontalContentAlignment="Left" Width="auto">
+                <Label.RenderTransform>
+                    <TranslateTransform x:Name="translation" X="0"/>
+                </Label.RenderTransform>
+                <Label.Triggers>
+                    <EventTrigger RoutedEvent="Loaded">
+                        <BeginStoryboard>
+                            <Storyboard RepeatBehavior="Forever">
+                                <DoubleAnimation Storyboard.TargetName="translation"
+                                              Storyboard.TargetProperty="X"
+                                              From="800" To="-800" Duration="0:0:10"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Label.Triggers>
+            </Label>
+        </Grid>
+
+        <StackPanel Grid.Column="0" Grid.Row="1">
+            <Label x:Name="lblTitle" Content="...Laden van Timetable..." />
+            <DataGrid x:Name="dgrTrains" Height="400"/>
+        </StackPanel>
+        <StackPanel x:Name="stpControls" Grid.Column="1" Grid.Row="1">
+            <Label x:Name="lblTime"  Content="20:51:06" />
+            <TextBox x:Name="txtStationFilter" Margin="5"></TextBox>
+            <ListBox x:Name="lstStations" Height="250"  Margin="5"/>
+            <Button x:Name="btnPersonOnRails" Content="Persoon op de sporen" Margin="5,5,5,0" Height="29"  />
+            <Button x:Name="btnAnnoyStudent" Content="Zet een student in de kou" Height="29" Margin="5" />
+            <Button x:Name="btnTestTextToSpeech" Content="Test Text To Speech" Height="29" Margin="5" />
+        </StackPanel>
+
+    </Grid>
+</Window>
