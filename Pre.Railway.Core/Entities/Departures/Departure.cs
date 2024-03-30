@@ -18,10 +18,25 @@ namespace Pre.Railway.Core.Entities.Departures
         [JsonPropertyName("time")]
         public string Time { get; set; }
 
+
         [JsonPropertyName("platform")]
         public string Platform { get; set; }
 
         [JsonPropertyName("canceled")]
         public string Canceled { get; set; }
+
+
+        public DateTime ConvertedTime { get { return UnixTimeStampToDateTime(Time); } }
+
+
+
+        public static DateTime UnixTimeStampToDateTime(string unixTimeStamp)
+        {
+            double result = Convert.ToDouble(unixTimeStamp);
+            
+            DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            dateTime = dateTime.AddSeconds(result).ToLocalTime();
+            return dateTime;
+        }
     }
 }

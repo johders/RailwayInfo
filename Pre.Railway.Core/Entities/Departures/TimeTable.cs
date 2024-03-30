@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Pre.Railway.Core.Entities.Departures
 {
-    public class Root
+    public class TimeTable
     {
         [JsonPropertyName("station")]
         public string Station { get; set; }

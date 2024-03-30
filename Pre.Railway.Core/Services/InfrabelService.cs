@@ -19,7 +19,7 @@ namespace Pre.Railway.Core.Services
         const string stationsUrl = "https://api.irail.be/stations/?format=json&lang=nl";
 
         public List<TrainStation> StationsList { get; set; }
-        public List<Departure> DeparturesInfo { get; set; }
+        public List<Departure> TimeTableForSelectedStation { get; set; }
 
         public async Task GetStationsAsync()
         {
@@ -38,15 +38,15 @@ namespace Pre.Railway.Core.Services
         public async Task GetDeparturesAsync(string station)
         {
             string departuresUrl = $"https://api.irail.be/liveboard/?station={station}&arrdep=departure&lang=nl&format=json&alerts=true";
-            DeparturesInfo = new List<Departure>();
+            TimeTableForSelectedStation = new List<Departure>();
 
             using (HttpClient client = new HttpClient())
             {
-                Root departures = await client.GetFromJsonAsync<Root>(departuresUrl);
+                TimeTable departures = await client.GetFromJsonAsync<TimeTable>(departuresUrl);
 
                 foreach (Departure departure in departures.Departures.Departure)
                 {
-                    DeparturesInfo.Add(departure);
+                    TimeTableForSelectedStation.Add(departure);
                 }
             }
         }
