@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Pre.Railway.Core.Entities
+namespace Pre.Railway.Core.Entities.Station
 {
     public class StationList
     {

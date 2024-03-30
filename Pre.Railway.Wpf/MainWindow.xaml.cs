@@ -34,6 +34,8 @@ namespace Pre.Railway.Wpf
 
             await infrabelService.GetStationsAsync();
             FillInfo();
+
+            await infrabelService.GetDeparturesAsync("Brugge");
         }
 
         private void LstStations_SelectionChanged(object sender, SelectionChangedEventArgs e)
