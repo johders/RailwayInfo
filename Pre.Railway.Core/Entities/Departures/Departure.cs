@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -14,10 +15,9 @@ namespace Pre.Railway.Core.Entities.Departures
 
         [JsonPropertyName("station")]
         public string Station { get; set; }
-
+       
         [JsonPropertyName("time")]
         public string Time { get; set; }
-
 
         [JsonPropertyName("platform")]
         public string Platform { get; set; }

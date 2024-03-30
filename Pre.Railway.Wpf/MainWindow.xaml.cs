@@ -13,6 +13,7 @@ using Pre.Railway.Core.Services;
 using Pre.Railway.Core.Entities;
 using System.Net.Http;
 using System.Net.Http.Json;
+using Pre.Railway.Core.Entities.Departures;
 
 namespace Pre.Railway.Wpf
 {
@@ -33,20 +34,45 @@ namespace Pre.Railway.Wpf
             lstStations.SelectionChanged += LstStations_SelectionChanged;
 
             await infrabelService.GetStationsAsync();
-            FillInfo();
+            PopulateStationsList();
 
             await infrabelService.GetDeparturesAsync("Brugge");
+
+            Task.Delay(1000);
+
+            dgrTrains.ItemsSource = infrabelService.TimeTableForSelectedStation;
         }
 
-        private void LstStations_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void LstStations_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            
+            string selection = lstStations.SelectedItem.ToString();
+            await infrabelService.GetDeparturesAsync(selection);
+
+            Task.Delay(1000);
+
+            dgrTrains.ItemsSource = infrabelService.TimeTableForSelectedStation;
+
         }
 
-
-        void FillInfo()
+        private void txtStationFilter_KeyUp(object sender, KeyEventArgs e)
         {
-            lstStations.ItemsSource = infrabelService.StationsList;
+            string userInput = txtStationFilter.Text;
+
+            FilteredStationsDisplay(userInput);
         }
+
+        void PopulateStationsList()
+        {
+            lstStations.ItemsSource = infrabelService.StationsList.OrderBy(s => s.Name);
+        }
+
+        void FilteredStationsDisplay(string userInput)
+        {
+
+            lstStations.ItemsSource = infrabelService.StationsList
+                .Where(s => s.Name.ToUpper().Contains(userInput.ToUpper()));
+        }
+
+       
     }
 }

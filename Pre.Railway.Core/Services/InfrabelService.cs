@@ -1,4 +1,5 @@
-﻿using Pre.Railway.Core.Entities.Departures;
+﻿using Pre.Railway.Core.Entities;
+using Pre.Railway.Core.Entities.Departures;
 using Pre.Railway.Core.Entities.Station;
 using System;
 using System.Collections.Generic;
@@ -19,7 +20,7 @@ namespace Pre.Railway.Core.Services
         const string stationsUrl = "https://api.irail.be/stations/?format=json&lang=nl";
 
         public List<TrainStation> StationsList { get; set; }
-        public List<Departure> TimeTableForSelectedStation { get; set; }
+        public List<DepartureDisplay> TimeTableForSelectedStation { get; set; }
 
         public async Task GetStationsAsync()
         {
@@ -38,7 +39,7 @@ namespace Pre.Railway.Core.Services
         public async Task GetDeparturesAsync(string station)
         {
             string departuresUrl = $"https://api.irail.be/liveboard/?station={station}&arrdep=departure&lang=nl&format=json&alerts=true";
-            TimeTableForSelectedStation = new List<Departure>();
+            TimeTableForSelectedStation = new List<DepartureDisplay>();
 
             using (HttpClient client = new HttpClient())
             {
@@ -46,7 +47,8 @@ namespace Pre.Railway.Core.Services
 
                 foreach (Departure departure in departures.Departures.Departure)
                 {
-                    TimeTableForSelectedStation.Add(departure);
+                    DepartureDisplay newEntry = new DepartureDisplay(departure);
+                    TimeTableForSelectedStation.Add(newEntry);
                 }
             }
         }
