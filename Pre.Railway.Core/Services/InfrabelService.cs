@@ -67,6 +67,11 @@ namespace Pre.Railway.Core.Services
 
         }
 
+        public void LeaveEarly(List<DepartureDisplay> currentLiveBoard)
+        {
+            currentLiveBoard.RemoveAt(0);
+        }
+
 
 
 

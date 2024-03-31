@@ -45,7 +45,7 @@
             <TextBox x:Name="txtStationFilter" Margin="5" KeyUp="TxtStationFilter_KeyUp"></TextBox>
             <ListBox x:Name="lstStations" Height="250"  Margin="5"/>
             <Button x:Name="btnPersonOnRails" Content="Persoon op de sporen" Margin="5,5,5,0" Height="29" Click="BtnPersonOnRails_Click"  />
-            <Button x:Name="btnAnnoyStudent" Content="Zet een student in de kou" Height="29" Margin="5" />
+            <Button x:Name="btnAnnoyStudent" Content="Zet een student in de kou" Height="29" Margin="5" Click="BtnAnnoyStudent_Click" />
             <Button x:Name="btnTestTextToSpeech" Content="Test Text To Speech" Height="29" Margin="5" />
         </StackPanel>
 

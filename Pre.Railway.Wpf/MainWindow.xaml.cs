@@ -70,6 +70,32 @@ namespace Pre.Railway.Wpf
             FilteredStationsDisplay(userInput);
         }
 
+        private void BtnPersonOnRails_Click(object sender, RoutedEventArgs e)
+        {
+
+            List<DepartureDisplay> currentLiveBoard = TakeLiveBoardScreenShot();
+            infrabelService.PersonOnTracksDelay(currentLiveBoard);
+
+            dgrTrains.ItemsSource = currentLiveBoard;
+
+        }
+
+        private void BtnAnnoyStudent_Click(object sender, RoutedEventArgs e)
+        {
+            List<DepartureDisplay> currentLiveBoard = TakeLiveBoardScreenShot();
+            infrabelService.LeaveEarly(currentLiveBoard);
+
+            dgrTrains.ItemsSource = currentLiveBoard;
+        }
+
+        List<DepartureDisplay> TakeLiveBoardScreenShot()
+        {
+            return MapToLiveBoard(infrabelService.TimeTableForSelectedStation)
+                .OrderBy(t => t.DepartureTime)
+                .ThenBy(t => t.Destination).ToList();
+        }
+
+
         void PopulateStationsList()
         {
             lstStations.ItemsSource = infrabelService.StationsList
@@ -97,20 +123,6 @@ namespace Pre.Railway.Wpf
                 });
         }
 
-        private void BtnPersonOnRails_Click(object sender, RoutedEventArgs e)
-        {
-            
-            var currentLiveBoard = MapToLiveBoard(infrabelService.TimeTableForSelectedStation)
-            .OrderBy(t => t.DepartureTime)
-            .ThenBy(t => t.Destination).ToList();
 
-            infrabelService.PersonOnTracksDelay(currentLiveBoard);
-
-            var result = currentLiveBoard;
-
-            dgrTrains.ItemsSource = result;
-
-
-        }
     }
 }
