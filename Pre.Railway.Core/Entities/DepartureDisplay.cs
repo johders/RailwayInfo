@@ -15,18 +15,18 @@ namespace Pre.Railway.Core.Entities
         public string Platform { get; set; }
 
 
-        public DepartureDisplay(Departure departure) 
-        {
-            DepartureTime = departure.ConvertedTime.ToString("HH:mm");
-            Delay = (int.Parse(departure.Delay) / 60).ToString();
+        //public DepartureDisplay(Departure departure) 
+        //{
+        //    DepartureTime = departure.ConvertedTime.ToString("HH:mm");
+        //    Delay = (int.Parse(departure.Delay) / 60).ToString();
 
-            if(Delay == "0")
-            {
-                Delay = "";
-            }
+        //    if(Delay == "0")
+        //    {
+        //        Delay = "";
+        //    }
 
-            Destination = departure.Station;
-            Platform = departure.Platform;       
-        }
+        //    Destination = departure.Station;
+        //    Platform = departure.Platform;       
+        //}
     }
 }

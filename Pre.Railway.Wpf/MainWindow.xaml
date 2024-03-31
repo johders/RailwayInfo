@@ -42,9 +42,9 @@
         </StackPanel>
         <StackPanel x:Name="stpControls" Grid.Column="1" Grid.Row="1">
             <Label x:Name="lblTime"  Content="20:51:06" />
-            <TextBox x:Name="txtStationFilter" Margin="5" KeyUp="txtStationFilter_KeyUp"></TextBox>
+            <TextBox x:Name="txtStationFilter" Margin="5" KeyUp="TxtStationFilter_KeyUp"></TextBox>
             <ListBox x:Name="lstStations" Height="250"  Margin="5"/>
-            <Button x:Name="btnPersonOnRails" Content="Persoon op de sporen" Margin="5,5,5,0" Height="29"  />
+            <Button x:Name="btnPersonOnRails" Content="Persoon op de sporen" Margin="5,5,5,0" Height="29" Click="BtnPersonOnRails_Click"  />
             <Button x:Name="btnAnnoyStudent" Content="Zet een student in de kou" Height="29" Margin="5" />
             <Button x:Name="btnTestTextToSpeech" Content="Test Text To Speech" Height="29" Margin="5" />
         </StackPanel>

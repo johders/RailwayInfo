@@ -18,9 +18,11 @@ namespace Pre.Railway.Core.Services
     public class InfrabelService
     {
         const string stationsUrl = "https://api.irail.be/stations/?format=json&lang=nl";
+        private readonly Random random = new Random();
+        private int maxDelayInMinutes = 150;
 
         public List<TrainStation> StationsList { get; set; }
-        public List<DepartureDisplay> TimeTableForSelectedStation { get; set; }
+        public List<Departure> TimeTableForSelectedStation { get; set; }
 
         public async Task GetStationsAsync()
         {
@@ -39,7 +41,7 @@ namespace Pre.Railway.Core.Services
         public async Task GetDeparturesAsync(string station)
         {
             string departuresUrl = $"https://api.irail.be/liveboard/?station={station}&arrdep=departure&lang=nl&format=json&alerts=true";
-            TimeTableForSelectedStation = new List<DepartureDisplay>();
+            TimeTableForSelectedStation = new List<Departure>();
 
             using (HttpClient client = new HttpClient())
             {
@@ -47,10 +49,22 @@ namespace Pre.Railway.Core.Services
 
                 foreach (Departure departure in departures.Departures.Departure)
                 {
-                    DepartureDisplay newEntry = new DepartureDisplay(departure);
-                    TimeTableForSelectedStation.Add(newEntry);
+                   TimeTableForSelectedStation.Add(departure);
                 }
             }
+        }
+
+        public void PersonOnTracksDelay(List<DepartureDisplay> currentLiveBoard)
+        {
+            
+            int count = currentLiveBoard.Count();
+            int delayInMinutes = random.Next(maxDelayInMinutes);
+            int randomTrainIndex = random.Next(count);
+
+            var selectedTrain = currentLiveBoard.ElementAt(randomTrainIndex);
+
+            selectedTrain.Delay += delayInMinutes;
+
         }
 
 

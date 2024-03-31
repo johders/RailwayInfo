@@ -14,16 +14,18 @@ using Pre.Railway.Core.Entities;
 using System.Net.Http;
 using System.Net.Http.Json;
 using Pre.Railway.Core.Entities.Departures;
+using System.Reflection;
 
 namespace Pre.Railway.Wpf
 {
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
         InfrabelService infrabelService = new InfrabelService();
-        
+
         public MainWindow()
         {
             Loaded += MainWindow_Loaded;
@@ -40,21 +42,28 @@ namespace Pre.Railway.Wpf
 
             Task.Delay(1000);
 
-            dgrTrains.ItemsSource = infrabelService.TimeTableForSelectedStation;
+            dgrTrains.ItemsSource = MapToLiveBoard(infrabelService.TimeTableForSelectedStation)
+                .OrderBy(t => t.DepartureTime)
+                .ThenBy(t => t.Destination);
         }
 
         private async void LstStations_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            string selection = lstStations.SelectedItem.ToString();
-            await infrabelService.GetDeparturesAsync(selection);
+            if (lstStations.SelectedItem != null)
+            {
+                string selection = lstStations.SelectedItem.ToString();
+                await infrabelService.GetDeparturesAsync(selection);
+            }
 
             Task.Delay(1000);
 
-            dgrTrains.ItemsSource = infrabelService.TimeTableForSelectedStation;
+            dgrTrains.ItemsSource = MapToLiveBoard(infrabelService.TimeTableForSelectedStation)
+                .OrderBy(t => t.DepartureTime)
+                .ThenBy(t => t.Destination);
 
         }
 
-        private void txtStationFilter_KeyUp(object sender, KeyEventArgs e)
+        private void TxtStationFilter_KeyUp(object sender, KeyEventArgs e)
         {
             string userInput = txtStationFilter.Text;
 
@@ -63,16 +72,45 @@ namespace Pre.Railway.Wpf
 
         void PopulateStationsList()
         {
-            lstStations.ItemsSource = infrabelService.StationsList.OrderBy(s => s.Name);
+            lstStations.ItemsSource = infrabelService.StationsList
+                .OrderBy(s => s.Name);
         }
 
         void FilteredStationsDisplay(string userInput)
         {
 
-            lstStations.ItemsSource = infrabelService.StationsList
-                .Where(s => s.Name.ToUpper().Contains(userInput.ToUpper()));
+            var result = infrabelService.StationsList
+               .Where(s => s.Name.ToUpper().StartsWith(userInput.ToUpper()));
+
+            lstStations.ItemsSource = result;
         }
 
-       
+        IEnumerable<DepartureDisplay> MapToLiveBoard(List<Departure> departures)
+        {
+            return departures
+                .Select(d => new DepartureDisplay
+                {
+                    DepartureTime = d.ConvertedTime.ToString("HH:mm"),
+                    Delay = ((int.Parse(d.Delay) / 60).ToString()) == "0" ? string.Empty : (int.Parse(d.Delay) / 60).ToString(),
+                    Destination = d.Station,
+                    Platform = d.Platform
+                });
+        }
+
+        private void BtnPersonOnRails_Click(object sender, RoutedEventArgs e)
+        {
+            
+            var currentLiveBoard = MapToLiveBoard(infrabelService.TimeTableForSelectedStation)
+            .OrderBy(t => t.DepartureTime)
+            .ThenBy(t => t.Destination).ToList();
+
+            infrabelService.PersonOnTracksDelay(currentLiveBoard);
+
+            var result = currentLiveBoard;
+
+            dgrTrains.ItemsSource = result;
+
+
+        }
     }
 }
