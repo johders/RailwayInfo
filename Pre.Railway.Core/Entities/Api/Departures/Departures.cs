@@ -5,12 +5,11 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Pre.Railway.Core.Entities.Station
+namespace Pre.Railway.Core.Entities.Api.Departures
 {
-    public class StationList
+    public class Departures
     {
-        [JsonPropertyName("station")]
-        public List<TrainStation> Stations { get; set; }
-
+        [JsonPropertyName("departure")]
+        public List<Departure> Departure { get; set; }
     }
 }

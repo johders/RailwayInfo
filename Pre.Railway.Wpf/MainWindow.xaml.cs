@@ -13,8 +13,8 @@ using Pre.Railway.Core.Services;
 using Pre.Railway.Core.Entities;
 using System.Net.Http;
 using System.Net.Http.Json;
-using Pre.Railway.Core.Entities.Departures;
 using System.Reflection;
+using Pre.Railway.Core.Entities.Api.Departures;
 
 namespace Pre.Railway.Wpf
 {
@@ -127,8 +127,8 @@ namespace Pre.Railway.Wpf
             return departures
                 .Select(d => new LiveBoard
                 {
-                    DepartureTime = d.ConvertedTime.ToString("HH:mm"),
-                    Delay = ((int.Parse(d.Delay) / 60).ToString()) == "0" ? string.Empty : (int.Parse(d.Delay) / 60).ToString(),
+                    DepartureTime = d.DepartureTimeConverted,
+                    Delay = d.DelayTimeConverted == "00:00" ? string.Empty : d.DelayTimeConverted,
                     Destination = d.Station,
                     Platform = d.Platform
                 });

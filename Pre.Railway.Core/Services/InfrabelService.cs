@@ -1,6 +1,6 @@
 ﻿using Pre.Railway.Core.Entities;
-using Pre.Railway.Core.Entities.Departures;
-using Pre.Railway.Core.Entities.Station;
+using Pre.Railway.Core.Entities.Api.Departures;
+using Pre.Railway.Core.Entities.Api.Station;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,12 +58,13 @@ namespace Pre.Railway.Core.Services
         {
             
             int count = currentLiveBoard.Count();
-            int delayInMinutes = random.Next(maxDelayInMinutes);
+            long delayInMinutes = random.Next(maxDelayInMinutes);
+            
             int randomTrainIndex = random.Next(count);
 
             var selectedTrain = currentLiveBoard.ElementAt(randomTrainIndex);
 
-            selectedTrain.Delay += delayInMinutes;
+            selectedTrain.Delay = (delayInMinutes * 60).GetTime();
 
         }
 
