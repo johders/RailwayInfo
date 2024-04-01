@@ -19,7 +19,7 @@ namespace Pre.Railway.Core.Services
     {
         const string stationsUrl = "https://api.irail.be/stations/?format=json&lang=nl";
         private readonly Random random = new Random();
-        private int maxDelayInMinutes = 150;
+        private int maxDelayInMinutes = 60;
 
         public List<TrainStation> StationsList { get; set; }
         public List<Departure> TimeTableForSelectedStation { get; set; }
@@ -54,7 +54,7 @@ namespace Pre.Railway.Core.Services
             }
         }
 
-        public void PersonOnTracksDelay(List<DepartureDisplay> currentLiveBoard)
+        public void PersonOnTracksDelay(List<LiveBoard> currentLiveBoard)
         {
             
             int count = currentLiveBoard.Count();
@@ -67,7 +67,7 @@ namespace Pre.Railway.Core.Services
 
         }
 
-        public void LeaveEarly(List<DepartureDisplay> currentLiveBoard)
+        public void LeaveEarly(List<LiveBoard> currentLiveBoard)
         {
             currentLiveBoard.RemoveAt(0);
         }

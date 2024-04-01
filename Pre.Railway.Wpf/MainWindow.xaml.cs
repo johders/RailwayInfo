@@ -18,18 +18,20 @@ using System.Reflection;
 
 namespace Pre.Railway.Wpf
 {
-
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
         InfrabelService infrabelService = new InfrabelService();
+        Clock clock = new Clock(1000);
 
         public MainWindow()
         {
             Loaded += MainWindow_Loaded;
-        }
+            clock.ClockTick += Clock_ClockTick;
+            clock.StartClock();
+        }     
 
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
@@ -44,7 +46,16 @@ namespace Pre.Railway.Wpf
 
             dgrTrains.ItemsSource = MapToLiveBoard(infrabelService.TimeTableForSelectedStation)
                 .OrderBy(t => t.DepartureTime)
-                .ThenBy(t => t.Destination);
+                .ThenBy(t => t.Destination);           
+
+        }
+
+        private void Clock_ClockTick(object sender, EventArgs e)
+        {
+            if(lblTime != null)
+            {
+                lblTime.Content = clock.TimeString;
+            }
         }
 
         private async void LstStations_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -73,7 +84,7 @@ namespace Pre.Railway.Wpf
         private void BtnPersonOnRails_Click(object sender, RoutedEventArgs e)
         {
 
-            List<DepartureDisplay> currentLiveBoard = TakeLiveBoardScreenShot();
+            List<LiveBoard> currentLiveBoard = TakeLiveBoardScreenShot();
             infrabelService.PersonOnTracksDelay(currentLiveBoard);
 
             dgrTrains.ItemsSource = currentLiveBoard;
@@ -82,13 +93,13 @@ namespace Pre.Railway.Wpf
 
         private void BtnAnnoyStudent_Click(object sender, RoutedEventArgs e)
         {
-            List<DepartureDisplay> currentLiveBoard = TakeLiveBoardScreenShot();
+            List<LiveBoard> currentLiveBoard = TakeLiveBoardScreenShot();
             infrabelService.LeaveEarly(currentLiveBoard);
 
             dgrTrains.ItemsSource = currentLiveBoard;
         }
 
-        List<DepartureDisplay> TakeLiveBoardScreenShot()
+        List<LiveBoard> TakeLiveBoardScreenShot()
         {
             return MapToLiveBoard(infrabelService.TimeTableForSelectedStation)
                 .OrderBy(t => t.DepartureTime)
@@ -111,10 +122,10 @@ namespace Pre.Railway.Wpf
             lstStations.ItemsSource = result;
         }
 
-        IEnumerable<DepartureDisplay> MapToLiveBoard(List<Departure> departures)
+        IEnumerable<LiveBoard> MapToLiveBoard(List<Departure> departures)
         {
             return departures
-                .Select(d => new DepartureDisplay
+                .Select(d => new LiveBoard
                 {
                     DepartureTime = d.ConvertedTime.ToString("HH:mm"),
                     Delay = ((int.Parse(d.Delay) / 60).ToString()) == "0" ? string.Empty : (int.Parse(d.Delay) / 60).ToString(),

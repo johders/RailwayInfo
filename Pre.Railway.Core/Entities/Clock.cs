@@ -8,23 +8,30 @@ namespace Pre.Railway.Core.Entities
 {
     public class Clock
     {
-      
         public event EventHandler ClockTick;
+
+        public DateTime CurrentTime { get; private set; }
+        public int Delay { get; }
+        public string TimeString { get { return CurrentTime.ToString("T"); } }
 
         public Clock(int delay)
         {
-            
+            Delay = delay;
         }
 
-
-        public void StartClock()
+        public async void StartClock()
         {
-            ClockTick?.Invoke(this, EventArgs.Empty);
+            while (true)
+            {
+                CurrentTime = DateTime.Now;
+                ClockTick?.Invoke(this, EventArgs.Empty);
+                await Task.Delay(Delay);
+            }            
         }
 
-        public void StopClock() 
+        public void StopClock(Clock clock)
         {
-        
+            clock.ClockTick -= ClockTick;
         }
 
     }

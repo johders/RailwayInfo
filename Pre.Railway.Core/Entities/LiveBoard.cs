@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Pre.Railway.Core.Entities
 {
-    public class DepartureDisplay
+    public class LiveBoard
     {
         public string DepartureTime { get; set; }
         public string Delay { get; set; }
