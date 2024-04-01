@@ -15,6 +15,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Reflection;
 using Pre.Railway.Core.Entities.Api.Departures;
+using static System.Collections.Specialized.BitVector32;
 
 namespace Pre.Railway.Wpf
 {
@@ -25,9 +26,11 @@ namespace Pre.Railway.Wpf
     {
         InfrabelService infrabelService = new InfrabelService();
         Clock clock = new Clock(1000);
+        NmbsService nmbsService;
 
         public MainWindow()
         {
+            nmbsService = new NmbsService(infrabelService);
             Loaded += MainWindow_Loaded;
             clock.ClockTick += Clock_ClockTick;
             clock.StartClock();
@@ -35,13 +38,14 @@ namespace Pre.Railway.Wpf
 
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            string initialStation = "Brugge";
             lstStations.SelectionChanged += LstStations_SelectionChanged;
 
             await infrabelService.GetStationsAsync();
             PopulateStationsList();
 
-            await infrabelService.GetDeparturesAsync("Brugge");
-
+            await infrabelService.GetDeparturesAsync(initialStation);
+            UpdateTitle(initialStation);
             Task.Delay(1000);
 
 
@@ -57,16 +61,12 @@ namespace Pre.Railway.Wpf
             //    
 
             infrabelService.AnnounceDelay += InfrabelService_AnnounceDelay;
-
-            infrabelService.DetectDelays(liveBoard);
+            nmbsService.UpdateLiveBoard(liveBoard);
         }
 
         private void InfrabelService_AnnounceDelay(object sender, Core.Event_Args.DelayEventArgs delayedTrain)
         {
-            int delayInMinutes = int.Parse(String.Concat(delayedTrain.Train.Delay.Skip(3).Take(2)));
-            string min = delayInMinutes == 1 ? "minuut" : "minuten";
-
-            lblInfo.Content = $"📢 Opgelet: spoor {delayedTrain.Train.Platform} De trein naar {delayedTrain.Train.Destination} heeft {delayInMinutes} {min} vertraging";
+            lblInfo.Content = delayedTrain.LiveBoardMessage;
         }
 
         private void Clock_ClockTick(object sender, EventArgs e)
@@ -86,13 +86,16 @@ namespace Pre.Railway.Wpf
             {
                 string selection = lstStations.SelectedItem.ToString();
                 await infrabelService.GetDeparturesAsync(selection);
+                UpdateTitle(selection);
             }
 
             Task.Delay(1000);
 
             var updatedLiveBoard = MapToLiveBoard(infrabelService.TimeTableForSelectedStation);
 
-            infrabelService.DetectDelays(updatedLiveBoard.ToList());
+            //infrabelService.DetectDelays(updatedLiveBoard.ToList());
+            
+            nmbsService.UpdateLiveBoard(updatedLiveBoard.ToList());
 
             dgrTrains.ItemsSource = updatedLiveBoard;
 
@@ -159,7 +162,11 @@ namespace Pre.Railway.Wpf
                 .ThenBy(t => t.Destination);
         }
 
-
+        void UpdateTitle(string station)
+        {
+            lblTitle.Content = $"{station}: Treinen bij vertrek";
+        }
+        
 
     }
 }

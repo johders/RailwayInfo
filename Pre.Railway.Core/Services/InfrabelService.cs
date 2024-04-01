@@ -4,6 +4,7 @@ using Pre.Railway.Core.Entities.Api.Station;
 using Pre.Railway.Core.Event_Args;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Net;
@@ -31,6 +32,8 @@ namespace Pre.Railway.Core.Services
 
         public List<TrainStation> StationsList { get; set; }
         public List<Departure> TimeTableForSelectedStation { get; set; }
+
+        //public List<Train> DelayedTrains { get; set; }
 
         public async Task GetStationsAsync()
         {
@@ -83,17 +86,20 @@ namespace Pre.Railway.Core.Services
             currentLiveBoard.RemoveAt(0);
         }
 
-
-        public async void DetectDelays(List<Train> currentLiveBoard)
+        public async Task<List<Train>> DetectDelays(List<Train> currentLiveBoard)
         {
+            List<Train> delayedTrains = new List<Train>();
             foreach (Train train in currentLiveBoard)
             {
-                while (!String.IsNullOrEmpty(train.Delay))
+                if (!String.IsNullOrEmpty(train.Delay))
                 {
+                    delayedTrains.Add(train);
                     AnnounceDelay?.Invoke(this, new DelayEventArgs(train));
+                    
                     await Task.Delay(10000);
                 }
             }
+            return delayedTrains;
         }
 
 
