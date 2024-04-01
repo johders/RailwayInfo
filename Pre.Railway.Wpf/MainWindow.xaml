@@ -38,7 +38,7 @@
 
         <StackPanel Grid.Column="0" Grid.Row="1">
             <Label x:Name="lblTitle" Content="...Laden van Timetable..." />
-            <DataGrid x:Name="dgrTrains" Height="400"/>
+            <DataGrid x:Name="dgrTrains" Height="400" AutoGenerateColumns="True"/>
         </StackPanel>
         <StackPanel x:Name="stpControls" Grid.Column="1" Grid.Row="1">
             <Label x:Name="lblTime"  Content="20:51:06" />

@@ -44,10 +44,29 @@ namespace Pre.Railway.Wpf
 
             Task.Delay(1000);
 
-            dgrTrains.ItemsSource = MapToLiveBoard(infrabelService.TimeTableForSelectedStation)
-                .OrderBy(t => t.DepartureTime)
-                .ThenBy(t => t.Destination);           
 
+            List<Train> liveBoard = MapToLiveBoard(infrabelService.TimeTableForSelectedStation)
+                .OrderBy(t => t.DepartureTime)
+                .ThenBy(t => t.Destination).ToList();
+
+            dgrTrains.ItemsSource = liveBoard;
+
+            //dgrTrains.ItemsSource = MapToLiveBoard(infrabelService.TimeTableForSelectedStation)
+            //    .OrderBy(t => t.DepartureTime)
+            //    .ThenBy(t => t.Destination);
+            //    
+
+            infrabelService.AnnounceDelay += InfrabelService_AnnounceDelay;
+
+            infrabelService.DetectDelays(liveBoard);
+        }
+
+        private void InfrabelService_AnnounceDelay(object sender, Core.Event_Args.DelayEventArgs delayedTrain)
+        {
+            int delayInMinutes = int.Parse(String.Concat(delayedTrain.Train.Delay.Skip(3).Take(2)));
+            string min = delayInMinutes == 1 ? "minuut" : "minuten";
+
+            lblInfo.Content = $"📢 Opgelet: spoor {delayedTrain.Train.Platform} De trein naar {delayedTrain.Train.Destination} heeft {delayInMinutes} {min} vertraging";
         }
 
         private void Clock_ClockTick(object sender, EventArgs e)
@@ -60,6 +79,9 @@ namespace Pre.Railway.Wpf
 
         private async void LstStations_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+
+            lblInfo.Content = string.Empty;
+
             if (lstStations.SelectedItem != null)
             {
                 string selection = lstStations.SelectedItem.ToString();
@@ -68,9 +90,11 @@ namespace Pre.Railway.Wpf
 
             Task.Delay(1000);
 
-            dgrTrains.ItemsSource = MapToLiveBoard(infrabelService.TimeTableForSelectedStation)
-                .OrderBy(t => t.DepartureTime)
-                .ThenBy(t => t.Destination);
+            var updatedLiveBoard = MapToLiveBoard(infrabelService.TimeTableForSelectedStation);
+
+            infrabelService.DetectDelays(updatedLiveBoard.ToList());
+
+            dgrTrains.ItemsSource = updatedLiveBoard;
 
         }
 
@@ -84,26 +108,25 @@ namespace Pre.Railway.Wpf
         private void BtnPersonOnRails_Click(object sender, RoutedEventArgs e)
         {
 
-            List<LiveBoard> currentLiveBoard = TakeLiveBoardScreenShot();
+            List<Train> currentLiveBoard = TakeLiveBoardScreenShot();
             infrabelService.PersonOnTracksDelay(currentLiveBoard);
 
             dgrTrains.ItemsSource = currentLiveBoard;
+
 
         }
 
         private void BtnAnnoyStudent_Click(object sender, RoutedEventArgs e)
         {
-            List<LiveBoard> currentLiveBoard = TakeLiveBoardScreenShot();
+            List<Train> currentLiveBoard = TakeLiveBoardScreenShot();
             infrabelService.LeaveEarly(currentLiveBoard);
 
             dgrTrains.ItemsSource = currentLiveBoard;
         }
 
-        List<LiveBoard> TakeLiveBoardScreenShot()
+        List<Train> TakeLiveBoardScreenShot()
         {
-            return MapToLiveBoard(infrabelService.TimeTableForSelectedStation)
-                .OrderBy(t => t.DepartureTime)
-                .ThenBy(t => t.Destination).ToList();
+            return MapToLiveBoard(infrabelService.TimeTableForSelectedStation).ToList();
         }
 
 
@@ -122,17 +145,20 @@ namespace Pre.Railway.Wpf
             lstStations.ItemsSource = result;
         }
 
-        IEnumerable<LiveBoard> MapToLiveBoard(List<Departure> departures)
+        IEnumerable<Train> MapToLiveBoard(List<Departure> departures)
         {
             return departures
-                .Select(d => new LiveBoard
+                .Select(d => new Train
                 {
                     DepartureTime = d.DepartureTimeConverted,
                     Delay = d.DelayTimeConverted == "00:00" ? string.Empty : d.DelayTimeConverted,
                     Destination = d.Station,
                     Platform = d.Platform
-                });
+                })
+                .OrderBy(t => t.DepartureTime)
+                .ThenBy(t => t.Destination);
         }
+
 
 
     }

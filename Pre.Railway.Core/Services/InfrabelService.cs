@@ -1,8 +1,10 @@
 ﻿using Pre.Railway.Core.Entities;
 using Pre.Railway.Core.Entities.Api.Departures;
 using Pre.Railway.Core.Entities.Api.Station;
+using Pre.Railway.Core.Event_Args;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Net;
 using System.Net.Http.Json;
@@ -15,8 +17,14 @@ using static System.Net.WebRequestMethods;
 
 namespace Pre.Railway.Core.Services
 {
+    public delegate void AnnounceDelayEventHandler(object sender, DelayEventArgs delayedTrain);
     public class InfrabelService
     {
+        
+        public event AnnounceDelayEventHandler AnnounceDelay;   
+
+
+
         const string stationsUrl = "https://api.irail.be/stations/?format=json&lang=nl";
         private readonly Random random = new Random();
         private int maxDelayInMinutes = 60;
@@ -54,27 +62,39 @@ namespace Pre.Railway.Core.Services
             }
         }
 
-        public void PersonOnTracksDelay(List<LiveBoard> currentLiveBoard)
+        public void PersonOnTracksDelay(List<Train> currentLiveBoard)
         {
             
             int count = currentLiveBoard.Count();
-            long delayInMinutes = random.Next(maxDelayInMinutes);
+            long delayInMinutes = random.Next(1, maxDelayInMinutes + 1);
             
             int randomTrainIndex = random.Next(count);
 
-            var selectedTrain = currentLiveBoard.ElementAt(randomTrainIndex);
+            Train selectedTrain = currentLiveBoard.ElementAt(randomTrainIndex);
 
             selectedTrain.Delay = (delayInMinutes * 60).GetTime();
 
+            AnnounceDelay?.Invoke(this, new DelayEventArgs(selectedTrain));
+
         }
 
-        public void LeaveEarly(List<LiveBoard> currentLiveBoard)
+        public void LeaveEarly(List<Train> currentLiveBoard)
         {
             currentLiveBoard.RemoveAt(0);
         }
 
 
-
+        public async void DetectDelays(List<Train> currentLiveBoard)
+        {
+            foreach (Train train in currentLiveBoard)
+            {
+                while (!String.IsNullOrEmpty(train.Delay))
+                {
+                    AnnounceDelay?.Invoke(this, new DelayEventArgs(train));
+                    await Task.Delay(10000);
+                }
+            }
+        }
 
 
         // https://api.irail.be/stations/?format=json&lang=nl FOR STATION INFO
