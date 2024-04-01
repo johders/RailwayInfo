@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Pre.Railway.Wpf"
         mc:Ignorable="d"
-        Title="NMBS - SNCB" Height="530" Width="800" >
+        Title="NMBS - SNCB" Height="564" Width="800" >
     <Grid x:Name="myGrid" Margin="0,0,0,0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"/>
@@ -39,6 +39,7 @@
         <StackPanel Grid.Column="0" Grid.Row="1">
             <Label x:Name="lblTitle" Content="...Laden van Timetable..." />
             <DataGrid x:Name="dgrTrains" Height="400" AutoGenerateColumns="True"/>
+            <ProgressBar x:Name="pgbLoading" Height="20" Margin="15" Width="400"/>
         </StackPanel>
         <StackPanel x:Name="stpControls" Grid.Column="1" Grid.Row="1">
             <Label x:Name="lblTime"  Content="20:51:06" />

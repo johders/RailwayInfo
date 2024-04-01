@@ -16,6 +16,7 @@ using System.Net.Http.Json;
 using System.Reflection;
 using Pre.Railway.Core.Entities.Api.Departures;
 using static System.Collections.Specialized.BitVector32;
+using System;
 
 namespace Pre.Railway.Wpf
 {
@@ -38,16 +39,27 @@ namespace Pre.Railway.Wpf
 
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
+
             string initialStation = "Brugge";
             lstStations.SelectionChanged += LstStations_SelectionChanged;
 
+            await PopulateStationsAsync();
+            await PopulateDeparturesAsync(initialStation);
+           
+        }
+
+
+        async Task PopulateStationsAsync()
+        {
             await infrabelService.GetStationsAsync();
             PopulateStationsList();
+        }
 
-            await infrabelService.GetDeparturesAsync(initialStation);
-            UpdateTitle(initialStation);
-            Task.Delay(1000);
+        async Task PopulateDeparturesAsync(string station)
+        {
 
+            await infrabelService.GetDeparturesAsync(station);
+            UpdateTitle(station);
 
             List<Train> liveBoard = MapToLiveBoard(infrabelService.TimeTableForSelectedStation)
                 .OrderBy(t => t.DepartureTime)
@@ -55,13 +67,13 @@ namespace Pre.Railway.Wpf
 
             dgrTrains.ItemsSource = liveBoard;
 
-            //dgrTrains.ItemsSource = MapToLiveBoard(infrabelService.TimeTableForSelectedStation)
-            //    .OrderBy(t => t.DepartureTime)
-            //    .ThenBy(t => t.Destination);
-            //    
-
             infrabelService.AnnounceDelay += InfrabelService_AnnounceDelay;
             nmbsService.UpdateLiveBoard(liveBoard);
+        }
+
+        private void Progress_ProgressChanged(object sender, ProgressService e)
+        {
+            pgbLoading.Value = e.PercentageComplete;
         }
 
         private void InfrabelService_AnnounceDelay(object sender, Core.Event_Args.DelayEventArgs delayedTrain)
@@ -89,11 +101,7 @@ namespace Pre.Railway.Wpf
                 UpdateTitle(selection);
             }
 
-            Task.Delay(1000);
-
             var updatedLiveBoard = MapToLiveBoard(infrabelService.TimeTableForSelectedStation);
-
-            //infrabelService.DetectDelays(updatedLiveBoard.ToList());
             
             nmbsService.UpdateLiveBoard(updatedLiveBoard.ToList());
 
@@ -115,7 +123,6 @@ namespace Pre.Railway.Wpf
             infrabelService.PersonOnTracksDelay(currentLiveBoard);
 
             dgrTrains.ItemsSource = currentLiveBoard;
-
 
         }
 

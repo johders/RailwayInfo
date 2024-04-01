@@ -5,6 +5,7 @@ using Pre.Railway.Core.Event_Args;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Net;
@@ -19,10 +20,12 @@ using static System.Net.WebRequestMethods;
 namespace Pre.Railway.Core.Services
 {
     public delegate void AnnounceDelayEventHandler(object sender, DelayEventArgs delayedTrain);
+
     public class InfrabelService
     {
-        
-        public event AnnounceDelayEventHandler AnnounceDelay;   
+
+
+        public event AnnounceDelayEventHandler AnnounceDelay;
 
 
 
@@ -42,7 +45,7 @@ namespace Pre.Railway.Core.Services
             {
                 StationList jsonResultList = await client.GetFromJsonAsync<StationList>(stationsUrl);
 
-                foreach(TrainStation station in jsonResultList.Stations)
+                foreach (TrainStation station in jsonResultList.Stations)
                 {
                     StationsList.Add(station);
                 }
@@ -57,20 +60,21 @@ namespace Pre.Railway.Core.Services
             using (HttpClient client = new HttpClient())
             {
                 TimeTable departures = await client.GetFromJsonAsync<TimeTable>(departuresUrl);
+                List<Departure> departuresOutput = departures.Departures.Departure;
 
-                foreach (Departure departure in departures.Departures.Departure)
+                foreach (Departure departure in departuresOutput)
                 {
-                   TimeTableForSelectedStation.Add(departure);
+                    TimeTableForSelectedStation.Add(departure);
                 }
             }
         }
 
         public void PersonOnTracksDelay(List<Train> currentLiveBoard)
         {
-            
+
             int count = currentLiveBoard.Count();
             long delayInMinutes = random.Next(1, maxDelayInMinutes + 1);
-            
+
             int randomTrainIndex = random.Next(count);
 
             Train selectedTrain = currentLiveBoard.ElementAt(randomTrainIndex);
@@ -95,7 +99,7 @@ namespace Pre.Railway.Core.Services
                 {
                     delayedTrains.Add(train);
                     AnnounceDelay?.Invoke(this, new DelayEventArgs(train));
-                    
+
                     await Task.Delay(10000);
                 }
             }
