@@ -1,0 +1,40 @@
+2024-04-02T11:01:03
+
+spoor 23 De trein naar Puurs heeft 2 minuten vertraging
+=================================================================
+
+2024-04-02T11:01:48
+
+spoor 23 De trein naar Brussel-Zuid heeft 5 minuten vertraging
+=================================================================
+
+2024-04-02T11:01:54
+
+spoor 23 De trein naar Brussel-Zuid heeft 3 minuten vertraging
+=================================================================
+
+2024-04-02T11:02:25
+
+spoor 5 De trein naar Leuven heeft 1 minuut vertraging
+=================================================================
+
+2024-04-02T11:02:25
+
+spoor 10 De trein naar Antwerpen-Centraal heeft 3 minuten vertraging
+=================================================================
+
+2024-04-02T11:02:25
+
+spoor 8 De trein naar Antwerpen-Centraal heeft 1 minuut vertraging
+=================================================================
+
+2024-04-02T11:02:25
+
+spoor 9 De trein naar Brussel-Zuid heeft 1 minuut vertraging
+=================================================================
+
+2024-04-02T11:03:01
+
+spoor 6 De trein naar Oostende heeft 42 minuten vertraging
+=================================================================
+

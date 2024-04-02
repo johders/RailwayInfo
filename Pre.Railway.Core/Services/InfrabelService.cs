@@ -102,20 +102,38 @@ namespace Pre.Railway.Core.Services
             currentLiveBoard.RemoveAt(0);
         }
 
-        public async Task<List<Train>> DetectDelays(List<Train> currentLiveBoard)
+        //public async Task<List<Train>> DetectDelays(List<Train> currentLiveBoard)
+        //{
+        //    List<Train> delayedTrains = new List<Train>();
+        //    foreach (Train train in currentLiveBoard)
+        //    {
+        //        if (!String.IsNullOrEmpty(train.Delay))
+        //        {
+        //            delayedTrains.Add(train);
+        //            AnnounceDelay?.Invoke(this, new DelayEventArgs(train));
+
+
+
+        //            await Task.Delay(10000);
+        //        }
+        //    }
+        //    return delayedTrains;
+        //}
+
+        public void ReportCurrentStationDelays(List<Train> currentLiveBoard)
         {
-            List<Train> delayedTrains = new List<Train>();
+            nmbsService.Delays.Clear();
             foreach (Train train in currentLiveBoard)
             {
                 if (!String.IsNullOrEmpty(train.Delay))
                 {
-                    delayedTrains.Add(train);
-                    AnnounceDelay?.Invoke(this, new DelayEventArgs(train));
-
-                    await Task.Delay(10000);
+                    nmbsService.AffectedTrain = train;
+                    nmbsService.Delays.Add(train);
+                    ReportDelayToNmbs?.Invoke(this, new ReportDelayEventArgs(nmbsService));
+                    nmbsService.LogAnnouncement(nmbsService.FormatTrainEventInfo(train));
+                    nmbsService.WriteToLogFile();
                 }
             }
-            return delayedTrains;
         }
 
 

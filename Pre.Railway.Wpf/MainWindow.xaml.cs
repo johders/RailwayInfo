@@ -27,11 +27,9 @@ namespace Pre.Railway.Wpf
     {
         InfrabelService infrabelService = new InfrabelService();
         Clock clock = new Clock(1000);
-        //NmbsService nmbsService;
 
         public MainWindow()
         {
-            //nmbsService = new NmbsService(infrabelService);
             Loaded += MainWindow_Loaded;
             clock.ClockTick += Clock_ClockTick;
             clock.StartClock();
@@ -67,34 +65,29 @@ namespace Pre.Railway.Wpf
 
             dgrTrains.ItemsSource = liveBoard;
 
-            //infrabelService.AnnounceDelay += InfrabelService_AnnounceDelay;
-
             infrabelService.ReportDelayToNmbs += InfrabelService_ReportDelayToNmbs;
-            //nmbsService.UpdateLiveBoard(liveBoard);
+
         }
 
         private void InfrabelService_ReportDelayToNmbs(object sender, Core.Event_Args.ReportDelayEventArgs nmbsService)
-        {
-            Train affectedTrain = nmbsService.NmbsService.AffectedTrain;
-          
-            UpdateLiveBoard();
-
-            //lblInfo.Content = $"📢 Opgelet: {announcement}";
-           
+        {                    
+            UpdateLiveBoard();                     
         }
 
 
-        void UpdateLiveBoard()
+        async void UpdateLiveBoard()
         {
-
+            lblInfo.Content = string.Empty;
             infrabelService.nmbsService.UpdateAnnouncements();
 
-                foreach (string announcement in infrabelService.nmbsService.LiveBoardAnnouncements)
-                {
+            var announcements = infrabelService.nmbsService.LiveBoardAnnouncements.ToList();
+
+                foreach (string announcement in announcements)
+                {   
+               
                     lblInfo.Content = $"📢 Opgelet: {announcement}";
-                    Task.Delay(1000);
-                }
-            
+                    await Task.Delay(10000);
+                }           
         }
       
 
@@ -124,8 +117,11 @@ namespace Pre.Railway.Wpf
             }
 
             var updatedLiveBoard = MapToLiveBoard(infrabelService.TimeTableForSelectedStation);
-            
+
             //nmbsService.UpdateLiveBoard(updatedLiveBoard.ToList());
+
+            infrabelService.ReportCurrentStationDelays(updatedLiveBoard.ToList());
+            UpdateLiveBoard();
 
             dgrTrains.ItemsSource = updatedLiveBoard;
 

@@ -36,6 +36,8 @@ namespace Pre.Railway.Core.Services
        
         public void UpdateAnnouncements()
         {
+            LiveBoardAnnouncements.Clear();
+
             foreach(Train train in Delays)
             {
                 LiveBoardAnnouncements.Add(FormatTrainEventInfo(train));
