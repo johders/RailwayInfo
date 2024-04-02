@@ -27,11 +27,11 @@ namespace Pre.Railway.Wpf
     {
         InfrabelService infrabelService = new InfrabelService();
         Clock clock = new Clock(1000);
-        NmbsService nmbsService;
+        //NmbsService nmbsService;
 
         public MainWindow()
         {
-            nmbsService = new NmbsService(infrabelService);
+            //nmbsService = new NmbsService(infrabelService);
             Loaded += MainWindow_Loaded;
             clock.ClockTick += Clock_ClockTick;
             clock.StartClock();
@@ -68,7 +68,7 @@ namespace Pre.Railway.Wpf
             dgrTrains.ItemsSource = liveBoard;
 
             infrabelService.AnnounceDelay += InfrabelService_AnnounceDelay;
-            nmbsService.UpdateLiveBoard(liveBoard);
+            //nmbsService.UpdateLiveBoard(liveBoard);
         }
 
         private void Progress_ProgressChanged(object sender, ProgressService e)
@@ -103,7 +103,7 @@ namespace Pre.Railway.Wpf
 
             var updatedLiveBoard = MapToLiveBoard(infrabelService.TimeTableForSelectedStation);
             
-            nmbsService.UpdateLiveBoard(updatedLiveBoard.ToList());
+            //nmbsService.UpdateLiveBoard(updatedLiveBoard.ToList());
 
             dgrTrains.ItemsSource = updatedLiveBoard;
 

@@ -3,6 +3,8 @@ using Pre.Railway.Core.Event_Args;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,9 +22,15 @@ namespace Pre.Railway.Core.Services
 
         public List<string> Announcements { get; set; }
 
-        public NmbsService(InfrabelService infrabelService)
+
+        //public NmbsService(InfrabelService infrabelService)
+        //{
+        //    InfrabelService = infrabelService;
+        //}
+
+        public NmbsService()
         {
-            InfrabelService = infrabelService;
+            AddAnnouncement();
         }
 
         public void UpdateLiveBoard(List<Train> currentLiveBoard)
@@ -31,9 +39,28 @@ namespace Pre.Railway.Core.Services
             Delays = InfrabelService.DetectDelays(CurrentLiveBoard);
         }
 
-        public static void AddAnnouncement()
+        public void AddAnnouncement()
         {
+            Announcements = new List<string>
+            {
+                "One announcement",
+                "ANother Announcement",
+                "More"
+            };
+        }
+
+        public void CreateLogFile()
+        {
+            string date = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH'-'mm'-'ss");
+            string fileName = $"trainlog-{date}.txt";
+
+
+            string programDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+
+            string path = Path.Combine(programDirectory, fileName).Replace("bin\\Debug\\net6.0-windows", "LogFiles");
+
+            WriteService.WriteToFile(path, Announcements);
             
-        } 
+        }
     }
 }

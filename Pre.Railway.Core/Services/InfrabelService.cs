@@ -36,6 +36,9 @@ namespace Pre.Railway.Core.Services
         public List<TrainStation> StationsList { get; set; }
         public List<Departure> TimeTableForSelectedStation { get; set; }
 
+        public NmbsService nmbsService { get; private set; } = new NmbsService();
+
+
         //public List<Train> DelayedTrains { get; set; }
 
         public async Task GetStationsAsync()
@@ -82,7 +85,7 @@ namespace Pre.Railway.Core.Services
             selectedTrain.Delay = (delayInMinutes * 60).GetTime();
 
             AnnounceDelay?.Invoke(this, new DelayEventArgs(selectedTrain));
-
+            nmbsService.CreateLogFile();
         }
 
         public void LeaveEarly(List<Train> currentLiveBoard)
