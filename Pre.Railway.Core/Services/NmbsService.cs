@@ -40,22 +40,29 @@ namespace Pre.Railway.Core.Services
 
             foreach(Train train in Delays)
             {
-                LiveBoardAnnouncements.Add(FormatTrainEventInfo(train));
+                LiveBoardAnnouncements.Add(FormatTrainDelayEventInfo(train));
             }
 
             foreach(Train train in DepartedTrains)
             {
-                LiveBoardAnnouncements.Add(FormatTrainEventInfo(train));
+                LiveBoardAnnouncements.Add(FormatTrainDepartedEventInfo(train));
             }
+
+            WriteToLogFile();
         }
 
-        public string FormatTrainEventInfo(Train affectedTrain)
+        public string FormatTrainDelayEventInfo(Train affectedTrain)
         {
             int delayInMinutes = int.Parse(String.Concat(affectedTrain.Delay.Skip(3).Take(2)));
             if (delayInMinutes == 0) delayInMinutes = 60;
             string min = delayInMinutes == 1 ? "minuut" : "minuten";
 
             return $"spoor {affectedTrain.Platform} De trein naar {affectedTrain.Destination} heeft {delayInMinutes} {min} vertraging";
+        }
+
+        public string FormatTrainDepartedEventInfo(Train affectedTrain)
+        {
+            return $"De trein naar {affectedTrain.Destination} is vertrokken om {affectedTrain.DepartureTime}";
         }
 
         private string CreateLogFileOnStartup()

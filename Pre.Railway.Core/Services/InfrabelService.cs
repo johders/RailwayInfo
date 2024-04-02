@@ -19,18 +19,12 @@ using static System.Net.WebRequestMethods;
 
 namespace Pre.Railway.Core.Services
 {
-    public delegate void AnnounceDelayEventHandler(object sender, DelayEventArgs delayedTrain);
-
-
     public delegate void ReportDelayToNmbsEventHandler(object sender, ReportDelayEventArgs nmbsService);
 
     public class InfrabelService
     {
 
         public event ReportDelayToNmbsEventHandler ReportDelayToNmbs;
-        public event AnnounceDelayEventHandler AnnounceDelay;
-
-
 
         const string stationsUrl = "https://api.irail.be/stations/?format=json&lang=nl";
         private readonly Random random = new Random();
@@ -40,9 +34,6 @@ namespace Pre.Railway.Core.Services
         public List<Departure> TimeTableForSelectedStation { get; set; }
 
         public NmbsService nmbsService { get; private set; } = new NmbsService();
-
-
-        //public List<Train> DelayedTrains { get; set; }
 
         public async Task GetStationsAsync()
         {
@@ -87,13 +78,12 @@ namespace Pre.Railway.Core.Services
 
             selectedTrain.Delay = (delayInMinutes * 60).GetTime();
 
-            AnnounceDelay?.Invoke(this, new DelayEventArgs(selectedTrain));
 
             //NEW
             nmbsService.AffectedTrain = selectedTrain;
             nmbsService.Delays.Add(selectedTrain);
             ReportDelayToNmbs?.Invoke(this, new ReportDelayEventArgs(nmbsService));
-            nmbsService.LogAnnouncement(nmbsService.FormatTrainEventInfo(selectedTrain));
+            nmbsService.LogAnnouncement(nmbsService.FormatTrainDelayEventInfo(selectedTrain));
             nmbsService.WriteToLogFile();
         }
 
@@ -101,24 +91,6 @@ namespace Pre.Railway.Core.Services
         {
             currentLiveBoard.RemoveAt(0);
         }
-
-        //public async Task<List<Train>> DetectDelays(List<Train> currentLiveBoard)
-        //{
-        //    List<Train> delayedTrains = new List<Train>();
-        //    foreach (Train train in currentLiveBoard)
-        //    {
-        //        if (!String.IsNullOrEmpty(train.Delay))
-        //        {
-        //            delayedTrains.Add(train);
-        //            AnnounceDelay?.Invoke(this, new DelayEventArgs(train));
-
-
-
-        //            await Task.Delay(10000);
-        //        }
-        //    }
-        //    return delayedTrains;
-        //}
 
         public void ReportCurrentStationDelays(List<Train> currentLiveBoard)
         {
@@ -130,8 +102,26 @@ namespace Pre.Railway.Core.Services
                     nmbsService.AffectedTrain = train;
                     nmbsService.Delays.Add(train);
                     ReportDelayToNmbs?.Invoke(this, new ReportDelayEventArgs(nmbsService));
-                    nmbsService.LogAnnouncement(nmbsService.FormatTrainEventInfo(train));
-                    nmbsService.WriteToLogFile();
+                    nmbsService.LogAnnouncement(nmbsService.FormatTrainDelayEventInfo(train));
+
+                    //Should only be logged fully on liveboard update??
+                    //nmbsService.WriteToLogFile();
+                }
+            }
+        }
+
+        public void ReportTrainDeparture(List<Train> currentLiveBoard)
+        {
+            nmbsService.DepartedTrains.Clear();
+
+            string currentTime = DateTime.Now.ToString("t");
+
+            foreach(Train train in currentLiveBoard)
+            {
+                if(train.DepartureTime == currentTime)
+                {
+                    nmbsService.DepartedTrains.Add(train);
+                    nmbsService.LogAnnouncement(nmbsService.FormatTrainDepartedEventInfo(train));
                 }
             }
         }

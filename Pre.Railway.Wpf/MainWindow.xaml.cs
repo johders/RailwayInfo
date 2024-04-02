@@ -41,11 +41,11 @@ namespace Pre.Railway.Wpf
             string initialStation = "Brugge";
             lstStations.SelectionChanged += LstStations_SelectionChanged;
 
+            
             await PopulateStationsAsync();
             await PopulateDeparturesAsync(initialStation);
-           
-        }
 
+        }
 
         async Task PopulateStationsAsync()
         {
@@ -59,10 +59,8 @@ namespace Pre.Railway.Wpf
             await infrabelService.GetDeparturesAsync(station);
             UpdateTitle(station);
 
-            List<Train> liveBoard = MapToLiveBoard(infrabelService.TimeTableForSelectedStation)
-                .OrderBy(t => t.DepartureTime)
-                .ThenBy(t => t.Destination).ToList();
-
+            var liveBoard = MapToLiveBoard(infrabelService.TimeTableForSelectedStation);
+              
             dgrTrains.ItemsSource = liveBoard;
 
             infrabelService.ReportDelayToNmbs += InfrabelService_ReportDelayToNmbs;
@@ -72,28 +70,6 @@ namespace Pre.Railway.Wpf
         private void InfrabelService_ReportDelayToNmbs(object sender, Core.Event_Args.ReportDelayEventArgs nmbsService)
         {                    
             UpdateLiveBoard();                     
-        }
-
-
-        async void UpdateLiveBoard()
-        {
-            lblInfo.Content = string.Empty;
-            infrabelService.nmbsService.UpdateAnnouncements();
-
-            var announcements = infrabelService.nmbsService.LiveBoardAnnouncements.ToList();
-
-                foreach (string announcement in announcements)
-                {   
-               
-                    lblInfo.Content = $"📢 Opgelet: {announcement}";
-                    await Task.Delay(10000);
-                }           
-        }
-      
-
-        private void InfrabelService_AnnounceDelay(object sender, Core.Event_Args.DelayEventArgs delayedTrain)
-        {
-            lblInfo.Content = delayedTrain.LiveBoardMessage;
         }
 
         private void Clock_ClockTick(object sender, EventArgs e)
@@ -111,16 +87,16 @@ namespace Pre.Railway.Wpf
 
             if (lstStations.SelectedItem != null)
             {
+                lblTitle.Content = "Loading...";
                 string selection = lstStations.SelectedItem.ToString();
                 await infrabelService.GetDeparturesAsync(selection);
                 UpdateTitle(selection);
             }
 
-            var updatedLiveBoard = MapToLiveBoard(infrabelService.TimeTableForSelectedStation);
+            var updatedLiveBoard = MapToLiveBoard(infrabelService.TimeTableForSelectedStation).ToList();
 
-            //nmbsService.UpdateLiveBoard(updatedLiveBoard.ToList());
-
-            infrabelService.ReportCurrentStationDelays(updatedLiveBoard.ToList());
+            infrabelService.ReportCurrentStationDelays(updatedLiveBoard);
+            infrabelService.ReportTrainDeparture(updatedLiveBoard);
             UpdateLiveBoard();
 
             dgrTrains.ItemsSource = updatedLiveBoard;
@@ -150,6 +126,21 @@ namespace Pre.Railway.Wpf
             infrabelService.LeaveEarly(currentLiveBoard);
 
             dgrTrains.ItemsSource = currentLiveBoard;
+        }
+
+        async void UpdateLiveBoard()
+        {
+            lblInfo.Content = string.Empty;
+            infrabelService.nmbsService.UpdateAnnouncements();
+
+            var announcements = infrabelService.nmbsService.LiveBoardAnnouncements.ToList();
+
+            foreach (string announcement in announcements)
+            {
+
+                lblInfo.Content = $"📢 Opgelet: {announcement}";
+                await Task.Delay(10000);
+            }
         }
 
         List<Train> TakeLiveBoardScreenShot()
