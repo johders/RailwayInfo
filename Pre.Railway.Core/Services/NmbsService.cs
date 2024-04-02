@@ -14,41 +14,46 @@ namespace Pre.Railway.Core.Services
     {
         public InfrabelService InfrabelService { get; }
 
-        public Train AffectedTrain { get; set; }
+        public Train AffectedTrain { get; internal set; }
 
         public List<Train> CurrentLiveBoard { get; private set; }
 
-        public Task<List<Train>> Delays { get; private set; }
+        public List<Train> Delays { get; private set; } = new List<Train>();
 
-        public List<Train> DepartedTrains { get; set; }
+        public List<Train> DepartedTrains { get; private set; } = new List<Train>();
 
-        public List<string> Announcements { get; set; } = new List<string>();
+        public List<string> LogAnnouncements { get; } = new List<string>();
 
-        public string LogFilePath { get; set; }
+        public List<string> LiveBoardAnnouncements { get; } = new List<string>();
+
+        public string LogFilePath { get; }
 
 
         public NmbsService()
         {
             LogFilePath = CreateLogFileOnStartup();
         }
-        public void UpdateLiveBoard(List<Train> currentLiveBoard)
+       
+        public void UpdateAnnouncements()
         {
-            CurrentLiveBoard = currentLiveBoard;
-            Delays = InfrabelService.DetectDelays(CurrentLiveBoard);
+            foreach(Train train in Delays)
+            {
+                LiveBoardAnnouncements.Add(FormatTrainEventInfo(train));
+            }
+
+            foreach(Train train in DepartedTrains)
+            {
+                LiveBoardAnnouncements.Add(FormatTrainEventInfo(train));
+            }
         }
 
-        public void LogAnnouncement(string announcement)
+        public string FormatTrainEventInfo(Train affectedTrain)
         {
-            string date = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+            int delayInMinutes = int.Parse(String.Concat(affectedTrain.Delay.Skip(3).Take(2)));
+            if (delayInMinutes == 0) delayInMinutes = 60;
+            string min = delayInMinutes == 1 ? "minuut" : "minuten";
 
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine(date);
-            sb.AppendLine();
-            sb.AppendLine(announcement);        
-            sb.AppendLine("---------------------------------------------------------------------");
-            sb.AppendLine();
-
-           Announcements.Add(sb.ToString());
+            return $"spoor {affectedTrain.Platform} De trein naar {affectedTrain.Destination} heeft {delayInMinutes} {min} vertraging";
         }
 
         private string CreateLogFileOnStartup()
@@ -59,19 +64,24 @@ namespace Pre.Railway.Core.Services
 
             return Path.Combine(programDirectory, fileName).Replace("bin\\Debug\\net6.0-windows", "LogFiles");
         }
+        public void LogAnnouncement(string announcement)
+        {
+            string date = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(date);
+            sb.AppendLine();
+            sb.AppendLine(announcement);        
+            sb.AppendLine("=================================================================");
+            
+           LogAnnouncements.Add(sb.ToString());
+        }
 
         public void WriteToLogFile()
         {           
-            WriteService.WriteToFile(LogFilePath, Announcements);           
+            WriteService.WriteToFile(LogFilePath, LogAnnouncements);           
         }
 
-        public string FormatTrainEventInfo()
-        {
-            int delayInMinutes = int.Parse(String.Concat(AffectedTrain.Delay.Skip(3).Take(2)));
-            string min = delayInMinutes == 1 ? "minuut" : "minuten";
 
-             //$"📢 Opgelet: "
-            return $"spoor {AffectedTrain.Platform} De trein naar {AffectedTrain.Destination} heeft {delayInMinutes} {min} vertraging";
-        }
     }
 }

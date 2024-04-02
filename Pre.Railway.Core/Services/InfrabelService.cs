@@ -91,8 +91,9 @@ namespace Pre.Railway.Core.Services
 
             //NEW
             nmbsService.AffectedTrain = selectedTrain;
+            nmbsService.Delays.Add(selectedTrain);
             ReportDelayToNmbs?.Invoke(this, new ReportDelayEventArgs(nmbsService));
-            nmbsService.LogAnnouncement(nmbsService.FormatTrainEventInfo());
+            nmbsService.LogAnnouncement(nmbsService.FormatTrainEventInfo(selectedTrain));
             nmbsService.WriteToLogFile();
         }
 
