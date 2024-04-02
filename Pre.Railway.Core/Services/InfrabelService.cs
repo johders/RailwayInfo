@@ -93,7 +93,7 @@ namespace Pre.Railway.Core.Services
             nmbsService.AffectedTrain = selectedTrain;
             ReportDelayToNmbs?.Invoke(this, new ReportDelayEventArgs(nmbsService));
             nmbsService.LogAnnouncement(nmbsService.FormatTrainEventInfo());
-            nmbsService.CreateLogFile();
+            nmbsService.WriteToLogFile();
         }
 
         public void LeaveEarly(List<Train> currentLiveBoard)

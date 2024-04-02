@@ -24,11 +24,13 @@ namespace Pre.Railway.Core.Services
 
         public List<string> Announcements { get; set; } = new List<string>();
 
+        public string LogFilePath { get; set; }
 
-        //public NmbsService(InfrabelService infrabelService)
-        //{
-        //    InfrabelService = infrabelService;
-        //}
+
+        public NmbsService()
+        {
+            LogFilePath = CreateLogFileOnStartup();
+        }
         public void UpdateLiveBoard(List<Train> currentLiveBoard)
         {
             CurrentLiveBoard = currentLiveBoard;
@@ -40,25 +42,27 @@ namespace Pre.Railway.Core.Services
             string date = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
 
             StringBuilder sb = new StringBuilder();
-            sb.Append(announcement);
             sb.AppendLine(date);
             sb.AppendLine();
+            sb.AppendLine(announcement);        
             sb.AppendLine("---------------------------------------------------------------------");
             sb.AppendLine();
 
            Announcements.Add(sb.ToString());
         }
 
-        public void CreateLogFile()
+        private string CreateLogFileOnStartup()
         {
             string date = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH'-'mm'-'ss");
             string fileName = $"trainlog-{date}.txt";
             string programDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
-            string path = Path.Combine(programDirectory, fileName).Replace("bin\\Debug\\net6.0-windows", "LogFiles");
+            return Path.Combine(programDirectory, fileName).Replace("bin\\Debug\\net6.0-windows", "LogFiles");
+        }
 
-            WriteService.WriteToFile(path, Announcements);
-            
+        public void WriteToLogFile()
+        {           
+            WriteService.WriteToFile(LogFilePath, Announcements);           
         }
 
         public string FormatTrainEventInfo()
