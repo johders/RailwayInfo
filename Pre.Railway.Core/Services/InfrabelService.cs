@@ -19,12 +19,14 @@ using static System.Net.WebRequestMethods;
 
 namespace Pre.Railway.Core.Services
 {
-    public delegate void ReportDelayToNmbsEventHandler(object sender, ReportDelayEventArgs nmbsService);
+    public delegate void ReportDelayToNmbsEventHandler(object sender, ReportDelayEventArgs e);
+    public delegate void ReportDepartureToNmbsEventHandler(object sender, ReportDepartureEventArgs e);
 
     public class InfrabelService
     {
 
         public event ReportDelayToNmbsEventHandler ReportDelayToNmbs;
+        public event ReportDepartureToNmbsEventHandler ReportDepartureToNmbs;
 
         const string stationsUrl = "https://api.irail.be/stations/?format=json&lang=nl";
         private readonly Random random = new Random();
@@ -80,11 +82,11 @@ namespace Pre.Railway.Core.Services
 
 
             //NEW
-            nmbsService.AffectedTrain = selectedTrain;
-            nmbsService.Delays.Add(selectedTrain);
-            ReportDelayToNmbs?.Invoke(this, new ReportDelayEventArgs(nmbsService));
-            nmbsService.LogAnnouncement(nmbsService.FormatTrainDelayEventInfo(selectedTrain));
-            nmbsService.WriteToLogFile();
+            //nmbsService.AffectedTrain = selectedTrain;
+            //nmbsService.Delays.Add(selectedTrain);
+            ReportDelayToNmbs?.Invoke(this, new ReportDelayEventArgs(nmbsService, selectedTrain));
+            //nmbsService.LogAnnouncement(nmbsService.FormatTrainDelayEventInfo(selectedTrain));
+            //nmbsService.WriteToLogFile();
         }
 
         public void LeaveEarly(List<Train> currentLiveBoard)
@@ -99,10 +101,10 @@ namespace Pre.Railway.Core.Services
             {
                 if (!String.IsNullOrEmpty(train.Delay))
                 {
-                    nmbsService.AffectedTrain = train;
-                    nmbsService.Delays.Add(train);
-                    ReportDelayToNmbs?.Invoke(this, new ReportDelayEventArgs(nmbsService));
-                    nmbsService.LogAnnouncement(nmbsService.FormatTrainDelayEventInfo(train));
+                    //nmbsService.AffectedTrain = train;
+                    //nmbsService.Delays.Add(train);
+                    ReportDelayToNmbs?.Invoke(this, new ReportDelayEventArgs(nmbsService, train));
+                    //nmbsService.LogAnnouncement(nmbsService.FormatTrainDelayEventInfo(train));
 
                     //Should only be logged fully on liveboard update??
                     //nmbsService.WriteToLogFile();
@@ -120,8 +122,9 @@ namespace Pre.Railway.Core.Services
             {
                 if(train.DepartureTime == currentTime)
                 {
-                    nmbsService.DepartedTrains.Add(train);
-                    nmbsService.LogAnnouncement(nmbsService.FormatTrainDepartedEventInfo(train));
+                    ReportDepartureToNmbs?.Invoke(this, new ReportDepartureEventArgs(nmbsService, train));
+                    //nmbsService.DepartedTrains.Add(train);
+                    //nmbsService.LogAnnouncement(nmbsService.FormatTrainDepartedEventInfo(train));
                 }
             }
         }

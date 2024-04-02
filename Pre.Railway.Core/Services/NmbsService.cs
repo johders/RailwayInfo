@@ -41,11 +41,13 @@ namespace Pre.Railway.Core.Services
             foreach(Train train in Delays)
             {
                 LiveBoardAnnouncements.Add(FormatTrainDelayEventInfo(train));
+                LogAnnouncement(FormatTrainDelayEventInfo(train));
             }
 
             foreach(Train train in DepartedTrains)
             {
                 LiveBoardAnnouncements.Add(FormatTrainDepartedEventInfo(train));
+                LogAnnouncement(FormatTrainDepartedEventInfo(train));
             }
 
             WriteToLogFile();

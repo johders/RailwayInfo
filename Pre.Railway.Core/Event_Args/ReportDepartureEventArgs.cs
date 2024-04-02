@@ -8,15 +8,14 @@ using System.Threading.Tasks;
 
 namespace Pre.Railway.Core.Event_Args
 {
-    public class ReportDelayEventArgs : EventArgs
+    public class ReportDepartureEventArgs : EventArgs
     {
         public NmbsService NmbsService { get; }
-        public Train DelayedTrain { get; set; }
-        public ReportDelayEventArgs(NmbsService nmbsService, Train delayedTrain)
+        public Train DepartedTrain { get; set; }
+        public ReportDepartureEventArgs(NmbsService nmbsService, Train departedTrain)
         {
             NmbsService = nmbsService;
-            DelayedTrain = delayedTrain;
-
+            DepartedTrain = departedTrain;
         }
     }
 }
