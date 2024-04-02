@@ -21,10 +21,13 @@ namespace Pre.Railway.Core.Services
 {
     public delegate void AnnounceDelayEventHandler(object sender, DelayEventArgs delayedTrain);
 
+
+    public delegate void ReportDelayToNmbsEventHandler(object sender, ReportDelayEventArgs nmbsService);
+
     public class InfrabelService
     {
 
-
+        public event ReportDelayToNmbsEventHandler ReportDelayToNmbs;
         public event AnnounceDelayEventHandler AnnounceDelay;
 
 
@@ -85,6 +88,11 @@ namespace Pre.Railway.Core.Services
             selectedTrain.Delay = (delayInMinutes * 60).GetTime();
 
             AnnounceDelay?.Invoke(this, new DelayEventArgs(selectedTrain));
+
+            //NEW
+            nmbsService.AffectedTrain = selectedTrain;
+            ReportDelayToNmbs?.Invoke(this, new ReportDelayEventArgs(nmbsService));
+            nmbsService.LogAnnouncement(nmbsService.FormatTrainEventInfo());
             nmbsService.CreateLogFile();
         }
 

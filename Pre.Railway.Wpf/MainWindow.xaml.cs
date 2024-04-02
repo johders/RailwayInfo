@@ -67,14 +67,24 @@ namespace Pre.Railway.Wpf
 
             dgrTrains.ItemsSource = liveBoard;
 
-            infrabelService.AnnounceDelay += InfrabelService_AnnounceDelay;
+            //infrabelService.AnnounceDelay += InfrabelService_AnnounceDelay;
+
+            infrabelService.ReportDelayToNmbs += InfrabelService_ReportDelayToNmbs;
             //nmbsService.UpdateLiveBoard(liveBoard);
         }
 
-        private void Progress_ProgressChanged(object sender, ProgressService e)
+        private void InfrabelService_ReportDelayToNmbs(object sender, Core.Event_Args.ReportDelayEventArgs nmbsService)
         {
-            pgbLoading.Value = e.PercentageComplete;
+            string announcement = nmbsService.NmbsService.FormatTrainEventInfo();
+            lblInfo.Content = $"📢 Opgelet: {announcement}";
+
+           
         }
+
+        //private void Progress_ProgressChanged(object sender, ProgressService e)
+        //{
+        //    pgbLoading.Value = e.PercentageComplete;
+        //}
 
         private void InfrabelService_AnnounceDelay(object sender, Core.Event_Args.DelayEventArgs delayedTrain)
         {
