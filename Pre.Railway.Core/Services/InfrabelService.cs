@@ -20,15 +20,17 @@ using static System.Net.WebRequestMethods;
 namespace Pre.Railway.Core.Services
 {
     public delegate void ReportDelayToNmbsEventHandler(object sender, ReportDelayEventArgs e);
-    public delegate void ReportDepartureToNmbsEventHandler(object sender, ReportDepartureEventArgs e);
+    public delegate void AutoUpdateLiveBoardEvent(object sender, EventArgs e);
 
     public class InfrabelService
     {
 
         public event ReportDelayToNmbsEventHandler ReportDelayToNmbs;
-        public event ReportDepartureToNmbsEventHandler ReportDepartureToNmbs;
+        //public event ReportDepartureToNmbsEventHandler ReportDepartureToNmbs;
 
         public event EventHandler<ReportDepartureEventArgs> DetectDeparture;
+
+        public event AutoUpdateLiveBoardEvent AutoUpdateLiveBoard;
 
         const string stationsUrl = "https://api.irail.be/stations/?format=json&lang=nl";
         private readonly Random random = new Random();
@@ -37,7 +39,11 @@ namespace Pre.Railway.Core.Services
         public List<TrainStation> StationsList { get; set; }
         public List<Departure> TimeTableForSelectedStation { get; set; }
 
-        public NmbsService nmbsService { get; private set; } = new NmbsService();
+        public string CurrentStation { get; set; }
+
+        public List<Train> CurrentLiveBoard { get; private set; } = new List<Train>();
+
+        public NmbsService NmbsService { get; private set; } = new NmbsService();
 
         public async Task GetStationsAsync()
         {
@@ -53,9 +59,9 @@ namespace Pre.Railway.Core.Services
             }
         }
 
-        public async Task GetDeparturesAsync(string station)
+        public async Task GetDeparturesAsync(/*string station*/)
         {
-            string departuresUrl = $"https://api.irail.be/liveboard/?station={station}&arrdep=departure&lang=nl&format=json&alerts=true";
+            string departuresUrl = $"https://api.irail.be/liveboard/?station={CurrentStation}&arrdep=departure&lang=nl&format=json&alerts=true";
             TimeTableForSelectedStation = new List<Departure>();
 
             using (HttpClient client = new HttpClient())
@@ -68,79 +74,91 @@ namespace Pre.Railway.Core.Services
                     TimeTableForSelectedStation.Add(departure);
                 }
             }
+            CurrentLiveBoard = MapToLiveBoard(TimeTableForSelectedStation);
         }
 
-        public void PersonOnTracksDelay(List<Train> currentLiveBoard)
+        List<Train> MapToLiveBoard(List<Departure> departures)
         {
 
-            int count = currentLiveBoard.Count();
+            return departures
+            .Select(d => new Train
+            {
+                DepartureTime = d.DepartureTimeConverted,
+                Delay = d.DelayTimeConverted == "00:00" ? string.Empty : d.DelayTimeConverted,
+                Destination = d.Station,
+                Platform = d.Platform
+            })
+            .OrderBy(t => t.DepartureTime)
+            .ThenBy(t => t.Destination).ToList();
+
+        }
+
+        public void LiveBoardUpdated()
+        {
+            AutoUpdateLiveBoard?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void PersonOnTracksDelay()
+        {
+
+            int count = CurrentLiveBoard.Count();
             long delayInMinutes = random.Next(1, maxDelayInMinutes + 1);
 
             int randomTrainIndex = random.Next(count);
 
-            Train selectedTrain = currentLiveBoard.ElementAt(randomTrainIndex);
+            Train selectedTrain = CurrentLiveBoard.ElementAt(randomTrainIndex);
 
             selectedTrain.Delay = (delayInMinutes * 60).GetTime();
 
-
-            //NEW
-            //nmbsService.AffectedTrain = selectedTrain;
-            //nmbsService.Delays.Add(selectedTrain);
-            ReportDelayToNmbs?.Invoke(this, new ReportDelayEventArgs(nmbsService, selectedTrain));
-            //nmbsService.LogAnnouncement(nmbsService.FormatTrainDelayEventInfo(selectedTrain));
-            //nmbsService.WriteToLogFile();
+            ReportDelayToNmbs?.Invoke(this, new ReportDelayEventArgs(NmbsService, selectedTrain));
         }
 
-        public void LeaveEarly(List<Train> currentLiveBoard)
+        public void LeaveEarly()
         {
-            currentLiveBoard.RemoveAt(0);
+            CurrentLiveBoard.RemoveAt(0);
         }
 
         public void ReportCurrentStationDelays(List<Train> currentLiveBoard)
         {
-            nmbsService.Delays.Clear();
+            NmbsService.Delays.Clear();
             foreach (Train train in currentLiveBoard)
             {
                 if (!String.IsNullOrEmpty(train.Delay))
                 {
-                    //nmbsService.AffectedTrain = train;
-                    //nmbsService.Delays.Add(train);
-                    ReportDelayToNmbs?.Invoke(this, new ReportDelayEventArgs(nmbsService, train));
-                    //nmbsService.LogAnnouncement(nmbsService.FormatTrainDelayEventInfo(train));
-
-                    //Should only be logged fully on liveboard update??
-                    //nmbsService.WriteToLogFile();
+                    ReportDelayToNmbs?.Invoke(this, new ReportDelayEventArgs(NmbsService, train));
                 }
             }
         }
 
-        public void ReportTrainDeparture(List<Train> currentLiveBoard)
-        {
-            nmbsService.DepartedTrains.Clear();
+        //public void ReportTrainDeparture(List<Train> currentLiveBoard)
+        //{
+        //    NmbsService.DepartedTrains.Clear();
 
-            string currentTime = DateTime.Now.ToString("t");
+        //    string currentTime = DateTime.Now.ToString("t");
 
-            foreach(Train train in currentLiveBoard)
-            {
-                if(train.DepartureTime == currentTime)
-                {
-                    ReportDepartureToNmbs?.Invoke(this, new ReportDepartureEventArgs(nmbsService, train));
-                    //nmbsService.DepartedTrains.Add(train);
-                    //nmbsService.LogAnnouncement(nmbsService.FormatTrainDepartedEventInfo(train));
-                }
-            }
-        }
+        //    foreach (Train train in currentLiveBoard)
+        //    {
+        //        if (train.DepartureTime == currentTime)
+        //        {
+        //            ReportDepartureToNmbs?.Invoke(this, new ReportDepartureEventArgs(NmbsService, train));
+        //            //nmbsService.DepartedTrains.Add(train);
+        //            //nmbsService.LogAnnouncement(nmbsService.FormatTrainDepartedEventInfo(train));
+        //        }
+        //    }
+        //}
 
-        public void CompareCurrentWithDepartureTime(Clock clock, List<Train> currentLiveBoard, NmbsService nmbsService)
+        public void CompareCurrentWithDepartureTime(Clock clock)
         {
             string timeString = String.Concat(clock.TimeString.Take(5));
+            DateTime clockTime = DateTime.Parse(timeString);
 
-            foreach (Train train in currentLiveBoard)
+
+
+            foreach (Train train in CurrentLiveBoard)
             {
-
-                if (timeString == train.DepartureTime)
+                if (DateTime.Parse(train.DepartureTime) <= clockTime)
                 {
-                    DetectDeparture?.Invoke(this, new ReportDepartureEventArgs(nmbsService, train));
+                    DetectDeparture?.Invoke(this, new ReportDepartureEventArgs(NmbsService, train));
                 }
             }
 

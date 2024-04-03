@@ -22,9 +22,12 @@ namespace Pre.Railway.Core.Services
 
         public List<Train> DepartedTrains { get; private set; } = new List<Train>();
 
+        //public List<Train> DeparturesWithoutDuplicates { get { return DepartedTrains.Distinct().ToList(); } }
+
         public List<string> LogAnnouncements { get; } = new List<string>();
 
         public List<string> LiveBoardAnnouncements { get; } = new List<string>();
+
 
         public string LogFilePath { get; }
 
@@ -38,7 +41,7 @@ namespace Pre.Railway.Core.Services
         public void UpdateLiveBoardAnnouncements()
         {
             LiveBoardAnnouncements.Clear();
-
+            
             foreach(Train train in Delays)
             {
                 LiveBoardAnnouncements.Add(FormatTrainDelayEventInfo(train));

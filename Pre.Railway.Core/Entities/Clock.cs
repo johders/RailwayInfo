@@ -1,4 +1,5 @@
-﻿using Pre.Railway.Core.Event_Args;
+﻿using Pre.Railway.Core.Entities.Api.Departures;
+using Pre.Railway.Core.Event_Args;
 using Pre.Railway.Core.Services;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,8 @@ namespace Pre.Railway.Core.Entities
         public int Delay { get; }
         public string TimeString { get { return CurrentTime.ToString("T"); } }
 
+        public InfrabelService InfrabelService { get; set; }
+
         public Clock(int delay)
         {
             Delay = delay;
@@ -31,25 +34,31 @@ namespace Pre.Railway.Core.Entities
             }            
         }
 
+        public async void DetectDepartures()
+        {
+            while (true)
+            {
+                CurrentTime = DateTime.Now;
+                InfrabelService.CompareCurrentWithDepartureTime(this);
+                await Task.Delay(Delay * 30);
+            }
+        }
+
+        public async void SilentLiveBoardUpdate()
+        {
+            while (true)
+            {
+                await InfrabelService.GetDeparturesAsync();
+                InfrabelService.LiveBoardUpdated();
+                await Task.Delay(Delay * 30);
+            }
+        }
+
         public void StopClock(Clock clock)
         {
             clock.ClockTick -= ClockTick;
         }
 
-        //public void CompareCurrentWithDepartureTime(List<Train> currentLiveBoard, NmbsService nmbsService)
-        //{
-        //    string timeString = TimeString.Take(5).ToString();
-
-        //    foreach(Train train in currentLiveBoard)
-        //    {
-
-        //        if (timeString == train.DepartureTime)
-        //        {
-        //            DetectDeparture?.Invoke(this, new ReportDepartureEventArgs(nmbsService, train));
-        //        }
-        //    }
-
-        //}
 
     }
 }

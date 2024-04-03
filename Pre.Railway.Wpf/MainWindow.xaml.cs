@@ -17,6 +17,7 @@ using System.Reflection;
 using Pre.Railway.Core.Entities.Api.Departures;
 using static System.Collections.Specialized.BitVector32;
 using System;
+using Pre.Railway.Core.Event_Args;
 
 namespace Pre.Railway.Wpf
 {
@@ -25,23 +26,55 @@ namespace Pre.Railway.Wpf
     /// </summary>
     public partial class MainWindow : Window
     {
-        InfrabelService infrabelService = new InfrabelService();
         Clock clock = new Clock(1000);
-
+        InfrabelService infrabelService = new InfrabelService();
+        
         public MainWindow()
         {
+
             Loaded += MainWindow_Loaded;
+
+            infrabelService.CurrentStation = "Brugge";
+
             clock.ClockTick += Clock_ClockTick;
+            clock.InfrabelService = infrabelService;
             clock.StartClock();
+            clock.SilentLiveBoardUpdate();
+
         }     
 
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            string initialStation = "Brugge";
+           
             lstStations.SelectionChanged += LstStations_SelectionChanged;
-            
+            infrabelService.ReportDelayToNmbs += InfrabelService_ReportDelayToNmbs;
+            infrabelService.DetectDeparture += Infrabel_DetectDeparture;
+            infrabelService.AutoUpdateLiveBoard += InfrabelService_AutoUpdateLiveBoard;
+
             await PopulateStationsAsync();
-            await PopulateDeparturesAsync(initialStation);
+            await PopulateDeparturesAsync();
+        }
+
+        private void InfrabelService_AutoUpdateLiveBoard(object sender, EventArgs e)
+        {
+            List<Train> liveBoard = infrabelService.CurrentLiveBoard;
+            dgrTrains.ItemsSource = liveBoard;
+        }
+
+        private async void LstStations_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+            lblInfo.Content = string.Empty;
+
+            if (lstStations.SelectedItem != null)
+            {
+                lblTitle.Content = "Loading...";
+                infrabelService.CurrentStation = lstStations.SelectedItem.ToString();
+            
+                await PopulateDeparturesAsync();
+
+                UpdateTitle();
+            }
         }
 
         async Task PopulateStationsAsync()
@@ -50,39 +83,37 @@ namespace Pre.Railway.Wpf
             PopulateStationsList();
         }
 
-        async Task PopulateDeparturesAsync(string station)
+        async Task PopulateDeparturesAsync()
         {
 
-            await infrabelService.GetDeparturesAsync(station);
-            UpdateTitle(station);
+            await infrabelService.GetDeparturesAsync();
+            UpdateTitle();
 
-            var liveBoard = MapToLiveBoard(infrabelService.TimeTableForSelectedStation).ToList();
-              
+            List<Train> liveBoard = infrabelService.CurrentLiveBoard;
             dgrTrains.ItemsSource = liveBoard;
 
-            infrabelService.ReportDelayToNmbs += InfrabelService_ReportDelayToNmbs;
-            infrabelService.ReportDepartureToNmbs += InfrabelService_ReportDepartureToNmbs;
-            infrabelService.DetectDeparture += Clock_DetectDeparture;
-
+            clock.DetectDepartures();
             infrabelService.ReportCurrentStationDelays(liveBoard);
-            infrabelService.ReportTrainDeparture(liveBoard);
-            infrabelService.CompareCurrentWithDepartureTime(clock, liveBoard, infrabelService.nmbsService);
 
         }
 
-        private void Clock_DetectDeparture(object sender, Core.Event_Args.ReportDepartureEventArgs e)
+        private void Infrabel_DetectDeparture(object sender, ReportDepartureEventArgs e)
         {
-            e.NmbsService.DepartedTrains.Add(e.DepartedTrain);
+
+            var departedTrain = e.DepartedTrain;
+            var departedTrains = e.NmbsService.DepartedTrains;
+
+            var result = departedTrains.Any(t => t.Equals(departedTrain));
+
+            if(!result) 
+            { 
+                e.NmbsService.DepartedTrains.Add(e.DepartedTrain); 
+            }
+
             UpdateLiveBoard(e.NmbsService);
         }
 
-        private void InfrabelService_ReportDepartureToNmbs(object sender, Core.Event_Args.ReportDepartureEventArgs e)
-        {
-            e.NmbsService.DepartedTrains.Add(e.DepartedTrain);
-            UpdateLiveBoard(e.NmbsService);
-        }
-
-        private void InfrabelService_ReportDelayToNmbs(object sender, Core.Event_Args.ReportDelayEventArgs e)
+        private void InfrabelService_ReportDelayToNmbs(object sender, ReportDelayEventArgs e)
         {
 
             e.NmbsService.Delays.Add(e.DelayedTrain);
@@ -96,29 +127,7 @@ namespace Pre.Railway.Wpf
             {
                 lblTime.Content = clock.TimeString;
             }
-        }
-
-        private async void LstStations_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-            lblInfo.Content = string.Empty;
-
-            if (lstStations.SelectedItem != null)
-            {
-                lblTitle.Content = "Loading...";
-                string selection = lstStations.SelectedItem.ToString();
-                await infrabelService.GetDeparturesAsync(selection);
-                UpdateTitle(selection);
-            }
-
-            var updatedLiveBoard = MapToLiveBoard(infrabelService.TimeTableForSelectedStation).ToList();
-
-            infrabelService.ReportCurrentStationDelays(updatedLiveBoard);
-            infrabelService.ReportTrainDeparture(updatedLiveBoard);
-
-            dgrTrains.ItemsSource = updatedLiveBoard;
-
-        }
+        }     
 
         private void TxtStationFilter_KeyUp(object sender, KeyEventArgs e)
         {
@@ -129,20 +138,14 @@ namespace Pre.Railway.Wpf
 
         private void BtnPersonOnRails_Click(object sender, RoutedEventArgs e)
         {
-
-            List<Train> currentLiveBoard = TakeLiveBoardScreenShot();
-            infrabelService.PersonOnTracksDelay(currentLiveBoard);
-
-            dgrTrains.ItemsSource = currentLiveBoard;
-
+            infrabelService.PersonOnTracksDelay();
+            dgrTrains.ItemsSource = infrabelService.CurrentLiveBoard.ToList();
         }
 
         private void BtnAnnoyStudent_Click(object sender, RoutedEventArgs e)
         {
-            List<Train> currentLiveBoard = TakeLiveBoardScreenShot();
-            infrabelService.LeaveEarly(currentLiveBoard);
-
-            dgrTrains.ItemsSource = currentLiveBoard;
+            infrabelService.LeaveEarly();
+            dgrTrains.ItemsSource = infrabelService.CurrentLiveBoard.ToList();
         }
 
         async void UpdateLiveBoard(NmbsService nmbsService)
@@ -161,12 +164,6 @@ namespace Pre.Railway.Wpf
             }
         }
 
-        List<Train> TakeLiveBoardScreenShot()
-        {
-            return MapToLiveBoard(infrabelService.TimeTableForSelectedStation).ToList();
-        }
-
-
         void PopulateStationsList()
         {
             lstStations.ItemsSource = infrabelService.StationsList
@@ -182,25 +179,10 @@ namespace Pre.Railway.Wpf
             lstStations.ItemsSource = result;
         }
 
-        IEnumerable<Train> MapToLiveBoard(List<Departure> departures)
+        void UpdateTitle()
         {
-            return departures
-                .Select(d => new Train
-                {
-                    DepartureTime = d.DepartureTimeConverted,
-                    Delay = d.DelayTimeConverted == "00:00" ? string.Empty : d.DelayTimeConverted,
-                    Destination = d.Station,
-                    Platform = d.Platform
-                })
-                .OrderBy(t => t.DepartureTime)
-                .ThenBy(t => t.Destination);
-        }
-
-        void UpdateTitle(string station)
-        {
-            lblTitle.Content = $"{station}: Treinen bij vertrek";
+            lblTitle.Content = $"{infrabelService.CurrentStation}: Treinen bij vertrek";
         }
         
-
     }
 }
