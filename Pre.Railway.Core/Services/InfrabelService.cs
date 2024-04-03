@@ -28,6 +28,8 @@ namespace Pre.Railway.Core.Services
         public event ReportDelayToNmbsEventHandler ReportDelayToNmbs;
         public event ReportDepartureToNmbsEventHandler ReportDepartureToNmbs;
 
+        public event EventHandler<ReportDepartureEventArgs> DetectDeparture;
+
         const string stationsUrl = "https://api.irail.be/stations/?format=json&lang=nl";
         private readonly Random random = new Random();
         private int maxDelayInMinutes = 60;
@@ -129,8 +131,19 @@ namespace Pre.Railway.Core.Services
             }
         }
 
+        public void CompareCurrentWithDepartureTime(Clock clock, List<Train> currentLiveBoard, NmbsService nmbsService)
+        {
+            string timeString = String.Concat(clock.TimeString.Take(5));
 
-        // https://api.irail.be/stations/?format=json&lang=nl FOR STATION INFO
-        // $"https://api.irail.be/liveboard/?station={station}&arrdep=departure&lang=nl&format=json&alerts=true FOR TIMETABLE INFO
+            foreach (Train train in currentLiveBoard)
+            {
+
+                if (timeString == train.DepartureTime)
+                {
+                    DetectDeparture?.Invoke(this, new ReportDepartureEventArgs(nmbsService, train));
+                }
+            }
+
+        }
     }
 }

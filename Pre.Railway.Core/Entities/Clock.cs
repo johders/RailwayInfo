@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Pre.Railway.Core.Event_Args;
+using Pre.Railway.Core.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -33,6 +35,21 @@ namespace Pre.Railway.Core.Entities
         {
             clock.ClockTick -= ClockTick;
         }
+
+        //public void CompareCurrentWithDepartureTime(List<Train> currentLiveBoard, NmbsService nmbsService)
+        //{
+        //    string timeString = TimeString.Take(5).ToString();
+
+        //    foreach(Train train in currentLiveBoard)
+        //    {
+
+        //        if (timeString == train.DepartureTime)
+        //        {
+        //            DetectDeparture?.Invoke(this, new ReportDepartureEventArgs(nmbsService, train));
+        //        }
+        //    }
+
+        //}
 
     }
 }

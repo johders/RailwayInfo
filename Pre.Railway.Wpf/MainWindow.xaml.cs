@@ -62,10 +62,18 @@ namespace Pre.Railway.Wpf
 
             infrabelService.ReportDelayToNmbs += InfrabelService_ReportDelayToNmbs;
             infrabelService.ReportDepartureToNmbs += InfrabelService_ReportDepartureToNmbs;
+            infrabelService.DetectDeparture += Clock_DetectDeparture;
 
             infrabelService.ReportCurrentStationDelays(liveBoard);
             infrabelService.ReportTrainDeparture(liveBoard);
+            infrabelService.CompareCurrentWithDepartureTime(clock, liveBoard, infrabelService.nmbsService);
 
+        }
+
+        private void Clock_DetectDeparture(object sender, Core.Event_Args.ReportDepartureEventArgs e)
+        {
+            e.NmbsService.DepartedTrains.Add(e.DepartedTrain);
+            UpdateLiveBoard(e.NmbsService);
         }
 
         private void InfrabelService_ReportDepartureToNmbs(object sender, Core.Event_Args.ReportDepartureEventArgs e)
@@ -140,7 +148,8 @@ namespace Pre.Railway.Wpf
         async void UpdateLiveBoard(NmbsService nmbsService)
         {
             lblInfo.Content = string.Empty;
-            nmbsService.UpdateAnnouncements();
+            nmbsService.UpdateLiveBoardAnnouncements();
+            nmbsService.UpdateLogFileAnnouncements();
 
             var announcements = nmbsService.LiveBoardAnnouncements.ToList();
 
