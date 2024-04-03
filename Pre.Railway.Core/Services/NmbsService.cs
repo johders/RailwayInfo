@@ -20,14 +20,24 @@ namespace Pre.Railway.Core.Services
 
         public List<string> LiveBoardAnnouncements { get; } = new List<string>();
 
+        public string LogFilePath { get; private set; }
 
-        public string LogFilePath { get; }
 
+        //public NmbsService()
+        //{
+        //    LogFilePath = CreateNewLogFile("Brugge");
+        //    WriteToLogFile();
+        //}
 
-        public NmbsService()
+        public void ChangeLogPath(string station)
         {
-            LogFilePath = CreateLogFileOnStartup();
-            WriteToLogFile();
+            LogFilePath = CreateNewLogFile(station);
+        }
+
+        public void ClearPreviousStationInfo()
+        {
+            Delays.Clear();
+            DepartedTrains.Clear();
         }
        
         public void UpdateLiveBoardAnnouncements()
@@ -63,10 +73,11 @@ namespace Pre.Railway.Core.Services
             WriteToLogFile();
         }  
 
-        private string CreateLogFileOnStartup()
+        public string CreateNewLogFile(string station)
         {
+        //    string stationName = CurrentStation;
             string date = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH'-'mm'-'ss");
-            string fileName = $"trainlog-{date}.txt";
+            string fileName = $"trainlog-{date}-{station}.txt";
             string programDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
             return Path.Combine(programDirectory, fileName).Replace("bin\\Debug\\net6.0-windows", "LogFiles");

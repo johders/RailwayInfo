@@ -68,12 +68,12 @@ namespace Pre.Railway.Wpf
 
             if (lstStations.SelectedItem != null)
             {
-                lblTitle.Content = "Loading...";
+                lblTitle.Content = "... loading ...";
+                dgrTrains.ItemsSource = null;
                 infrabelService.CurrentStation = lstStations.SelectedItem.ToString();
             
                 await PopulateDeparturesAsync();
 
-                UpdateTitle();
             }
         }
 
@@ -87,6 +87,8 @@ namespace Pre.Railway.Wpf
         {
 
             await infrabelService.GetDeparturesAsync();
+            infrabelService.NmbsService.ChangeLogPath(infrabelService.CurrentStation);
+            infrabelService.NmbsService.ClearPreviousStationInfo();
             UpdateTitle();
 
             List<Train> liveBoard = infrabelService.CurrentLiveBoard;

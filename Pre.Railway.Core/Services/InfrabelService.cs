@@ -38,7 +38,6 @@ namespace Pre.Railway.Core.Services
 
         public List<TrainStation> StationsList { get; set; }
         public List<Departure> TimeTableForSelectedStation { get; set; }
-
         public string CurrentStation { get; set; }
 
         public List<Train> CurrentLiveBoard { get; private set; } = new List<Train>();
@@ -106,6 +105,8 @@ namespace Pre.Railway.Core.Services
 
             int randomTrainIndex = random.Next(count);
 
+            //NEEDS EXCEPTION IN CASE TRAINS ARE NULL
+
             Train selectedTrain = CurrentLiveBoard.ElementAt(randomTrainIndex);
 
             selectedTrain.Delay = (delayInMinutes * 60).GetTime();
@@ -115,7 +116,11 @@ namespace Pre.Railway.Core.Services
 
         public void LeaveEarly()
         {
+
+            Train train = CurrentLiveBoard.ElementAt(0);
             CurrentLiveBoard.RemoveAt(0);
+
+            DetectDeparture?.Invoke(this, new ReportDepartureEventArgs(NmbsService, train));
         }
 
         public void ReportCurrentStationDelays(List<Train> currentLiveBoard)
