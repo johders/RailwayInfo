@@ -12,17 +12,9 @@ namespace Pre.Railway.Core.Services
 {
     public class NmbsService
     {
-        //public InfrabelService InfrabelService { get; }
-
-        //public Train AffectedTrain { get; internal set; }
-
-        //public List<Train> CurrentLiveBoard { get; private set; }
-
         public List<Train> Delays { get; private set; } = new List<Train>();
 
         public List<Train> DepartedTrains { get; private set; } = new List<Train>();
-
-        //public List<Train> DeparturesWithoutDuplicates { get { return DepartedTrains.Distinct().ToList(); } }
 
         public List<string> LogAnnouncements { get; } = new List<string>();
 

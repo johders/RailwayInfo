@@ -103,7 +103,7 @@ namespace Pre.Railway.Wpf
             var departedTrain = e.DepartedTrain;
             var departedTrains = e.NmbsService.DepartedTrains;
 
-            var result = departedTrains.Any(t => t.Equals(departedTrain));
+            var result = departedTrains.Any(t => t.DepartureTime == departedTrain.DepartureTime && t.Destination == departedTrain.Destination);
 
             if(!result) 
             { 
