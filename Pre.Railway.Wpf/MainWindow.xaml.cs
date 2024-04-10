@@ -150,13 +150,26 @@ namespace Pre.Railway.Wpf
             dgrTrains.ItemsSource = infrabelService.CurrentLiveBoard.ToList();
         }
 
-        async void UpdateLiveBoard(NmbsService nmbsService)
+		private void BtnTestTextToSpeech_Click(object sender, RoutedEventArgs e)
+		{
+			string albertHam = "Look at me, I'm a train on a track I'm a train, I'm a train, I'm a chucka train, yeah";
+			infrabelService.NmbsService.ReadText(albertHam);
+		}
+
+		async void UpdateLiveBoard(NmbsService nmbsService)
         {
             lblInfo.Content = string.Empty;
             nmbsService.UpdateLiveBoardAnnouncements();
             nmbsService.UpdateLogFileAnnouncements();
 
             var announcements = nmbsService.LiveBoardAnnouncements.ToList();
+            var speechAnnouncements = nmbsService.SpeechAnnouncements.ToList();
+
+            foreach (string speechAnnouncement in speechAnnouncements)
+            {
+                nmbsService.ReadText(speechAnnouncement);
+                await Task.Delay(10000);
+            }
 
             foreach (string announcement in announcements)
             {
@@ -186,10 +199,6 @@ namespace Pre.Railway.Wpf
             lblTitle.Content = $"{infrabelService.CurrentStation}: Treinen bij vertrek";
         }
 
-		private void BtnTestTextToSpeech_Click(object sender, RoutedEventArgs e)
-		{
-            string albertHam = "Look at me, I'm a train on a track I'm a train, I'm a train, I'm a chucka train, yeah";
-			infrabelService.NmbsService.ReadText(albertHam);
-		}
+	
 	}
 }

@@ -21,7 +21,9 @@ namespace Pre.Railway.Core.Services
 
         public List<string> LiveBoardAnnouncements { get; } = new List<string>();
 
-        public string LogFilePath { get; private set; }
+        public List<string> SpeechAnnouncements { get; set; } = new List<string>();
+
+		public string LogFilePath { get; private set; }
 
 
         //public NmbsService()
@@ -44,16 +46,20 @@ namespace Pre.Railway.Core.Services
         public void UpdateLiveBoardAnnouncements()
         {
             LiveBoardAnnouncements.Clear();
+            SpeechAnnouncements.Clear();
             
             foreach(Train train in Delays)
             {
                 LiveBoardAnnouncements.Add(FormatTrainDelayEventInfo(train));
-            }
+                SpeechAnnouncements.Add(FormatSpeechinfoDelay(train));
+
+			}
 
             foreach(Train train in DepartedTrains)
             {
                 LiveBoardAnnouncements.Add(FormatTrainDepartedEventInfo(train));
-            }
+                SpeechAnnouncements.Add(FormatSpeechinfoDeparted(train));
+			}
 
         }
 
@@ -96,7 +102,20 @@ namespace Pre.Railway.Core.Services
            LogAnnouncements.Add(sb.ToString());
         }
 
-        public string FormatTrainDelayEventInfo(Train affectedTrain)
+        public string FormatSpeechinfoDelay(Train affectedTrain)
+        {
+			int delayInMinutes = int.Parse(String.Concat(affectedTrain.Delay.Skip(3).Take(2)));
+			if (delayInMinutes == 0) delayInMinutes = 60;
+
+			return $"Platform {affectedTrain.Platform}. Train with destination {affectedTrain.Destination} has a {delayInMinutes} minute delay";
+		}
+
+		public string FormatSpeechinfoDeparted(Train affectedTrain)
+		{
+			return $"Platform {affectedTrain.Platform}. Train with destination {affectedTrain.Destination} has departed at {affectedTrain.DepartureTime}";
+		}
+
+		public string FormatTrainDelayEventInfo(Train affectedTrain)
         {
             int delayInMinutes = int.Parse(String.Concat(affectedTrain.Delay.Skip(3).Take(2)));
             if (delayInMinutes == 0) delayInMinutes = 60;
