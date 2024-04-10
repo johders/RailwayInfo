@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Speech.Synthesis;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -114,6 +115,10 @@ namespace Pre.Railway.Core.Services
             WriteService.WriteToFile(LogFilePath, LogAnnouncements);           
         }
 
-
+        public void ReadText(string announcement)
+        {
+			SpeechSynthesizer synth = new SpeechSynthesizer();
+            synth.SpeakAsync(announcement);
+        }
     }
 }

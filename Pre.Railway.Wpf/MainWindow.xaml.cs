@@ -185,6 +185,11 @@ namespace Pre.Railway.Wpf
         {
             lblTitle.Content = $"{infrabelService.CurrentStation}: Treinen bij vertrek";
         }
-        
-    }
+
+		private void BtnTestTextToSpeech_Click(object sender, RoutedEventArgs e)
+		{
+            string albertHam = "Look at me, I'm a train on a track I'm a train, I'm a train, I'm a chucka train, yeah";
+			infrabelService.NmbsService.ReadText(albertHam);
+		}
+	}
 }

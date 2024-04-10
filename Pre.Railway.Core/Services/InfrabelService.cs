@@ -109,6 +109,8 @@ namespace Pre.Railway.Core.Services
 
             Train selectedTrain = CurrentLiveBoard.ElementAt(randomTrainIndex);
 
+            //NEEDS EXCEPTION IN CASE TRAINS ARE NULL
+
             selectedTrain.Delay = (delayInMinutes * 60).GetTime();
 
             ReportDelayToNmbs?.Invoke(this, new ReportDelayEventArgs(NmbsService, selectedTrain));
