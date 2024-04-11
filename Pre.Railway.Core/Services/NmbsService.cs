@@ -25,12 +25,7 @@ namespace Pre.Railway.Core.Services
 
 		public string LogFilePath { get; private set; }
 
-
-        //public NmbsService()
-        //{
-        //    LogFilePath = CreateNewLogFile("Brugge");
-        //    WriteToLogFile();
-        //}
+        PromptBuilder promptBuilder = new PromptBuilder();
 
         public void ChangeLogPath(string station)
         {
@@ -46,22 +41,35 @@ namespace Pre.Railway.Core.Services
         public void UpdateLiveBoardAnnouncements()
         {
             LiveBoardAnnouncements.Clear();
-            SpeechAnnouncements.Clear();
+           
             
             foreach(Train train in Delays)
             {
-                LiveBoardAnnouncements.Add(FormatTrainDelayEventInfo(train));
-                SpeechAnnouncements.Add(FormatSpeechinfoDelay(train));
-
+                LiveBoardAnnouncements.Add(FormatTrainDelayEventInfo(train));              
 			}
 
             foreach(Train train in DepartedTrains)
             {
                 LiveBoardAnnouncements.Add(FormatTrainDepartedEventInfo(train));
-                SpeechAnnouncements.Add(FormatSpeechinfoDeparted(train));
 			}
 
         }
+
+        public void UpdateSpeechAnnouncements()
+        {
+			SpeechAnnouncements.Clear();
+            promptBuilder.ClearContent();
+
+			foreach (Train train in Delays)
+			{
+				SpeechAnnouncements.Add(FormatSpeechinfoDelay(train));
+			}
+
+			foreach (Train train in DepartedTrains)
+			{
+				SpeechAnnouncements.Add(FormatSpeechinfoDeparted(train));
+			}
+		}
 
         public void UpdateLogFileAnnouncements()
         {
@@ -134,10 +142,26 @@ namespace Pre.Railway.Core.Services
             WriteService.WriteToFile(LogFilePath, LogAnnouncements);           
         }
 
-        public void ReadText(string announcement)
+        public async Task ReadText()
         {
+            UpdateSpeechAnnouncements();
+
+            List<string> announcementsCopy = new();
+
+			var result = SpeechAnnouncements.Any(a => a.Equals(announcementsCopy));
+
+			foreach (string announcement in SpeechAnnouncements) 
+            {
+                promptBuilder.AppendText(announcement);
+                promptBuilder.AppendBreak(PromptBreak.Medium);
+            }
+
+            announcementsCopy = SpeechAnnouncements;
+
 			SpeechSynthesizer synth = new SpeechSynthesizer();
-            synth.SpeakAsync(announcement);
-        }
+			synth.SpeakAsync(promptBuilder);
+
+            //synth.Dispose();
+		}
     }
 }

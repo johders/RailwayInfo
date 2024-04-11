@@ -48,9 +48,16 @@ namespace Pre.Railway.Core.Entities
         {
             while (true)
             {
-                await InfrabelService.GetDeparturesAsync();
-                InfrabelService.LiveBoardUpdated();
-                await Task.Delay(Delay * 30);
+                try
+                {
+					await InfrabelService.GetDeparturesAsync();
+					InfrabelService.LiveBoardUpdated();
+					await Task.Delay(Delay * 30);
+				}
+               catch (Exception ex)
+                {
+                    throw new Exception($"oh no: {ex.Message}");
+                }
             }
         }
 

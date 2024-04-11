@@ -10,6 +10,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Net;
 using System.Net.Http.Json;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -49,12 +50,20 @@ namespace Pre.Railway.Core.Services
             StationsList = new List<TrainStation>();
             using (HttpClient client = new HttpClient())
             {
-                StationList jsonResultList = await client.GetFromJsonAsync<StationList>(stationsUrl);
-
-                foreach (TrainStation station in jsonResultList.Stations)
+                try
                 {
-                    StationsList.Add(station);
+					StationList jsonResultList = await client.GetFromJsonAsync<StationList>(stationsUrl);
+
+					foreach (TrainStation station in jsonResultList.Stations)
+					{
+						StationsList.Add(station);
+					}
+				}
+                catch (Exception ex)
+                {
+                    throw new Exception($"Er is een fout opgetreden: {ex.Message}");
                 }
+
             }
         }
 
@@ -65,13 +74,20 @@ namespace Pre.Railway.Core.Services
 
             using (HttpClient client = new HttpClient())
             {
-                TimeTable departures = await client.GetFromJsonAsync<TimeTable>(departuresUrl);
-                List<Departure> departuresOutput = departures.Departures.Departure;
-
-                foreach (Departure departure in departuresOutput)
+                try
                 {
-                    TimeTableForSelectedStation.Add(departure);
-                }
+					TimeTable departures = await client.GetFromJsonAsync<TimeTable>(departuresUrl);
+					List<Departure> departuresOutput = departures.Departures.Departure;
+
+					foreach (Departure departure in departuresOutput)
+					{
+						TimeTableForSelectedStation.Add(departure);
+					}
+				}
+                catch (Exception ex)
+                {
+					throw new Exception($"Er is een fout opgetreden: {ex.Message}");
+				}
             }
             CurrentLiveBoard = MapToLiveBoard(TimeTableForSelectedStation);
         }
@@ -101,15 +117,14 @@ namespace Pre.Railway.Core.Services
         {
 
             int count = CurrentLiveBoard.Count();
+
+            if(count == 0) return;
+
             long delayInMinutes = random.Next(1, maxDelayInMinutes + 1);
 
             int randomTrainIndex = random.Next(count);
 
-            //NEEDS EXCEPTION IN CASE TRAINS ARE NULL
-
             Train selectedTrain = CurrentLiveBoard.ElementAt(randomTrainIndex);
-
-            //NEEDS EXCEPTION IN CASE TRAINS ARE NULL
 
             selectedTrain.Delay = (delayInMinutes * 60).GetTime();
 
@@ -119,8 +134,12 @@ namespace Pre.Railway.Core.Services
         public void LeaveEarly()
         {
 
-            Train train = CurrentLiveBoard.ElementAt(0);
-            CurrentLiveBoard.RemoveAt(0);
+			int count = CurrentLiveBoard.Count();
+			if (count == 0) return;
+
+			Train train = CurrentLiveBoard.ElementAt(0);
+
+			CurrentLiveBoard.RemoveAt(0);
 
             DetectDeparture?.Invoke(this, new ReportDepartureEventArgs(NmbsService, train));
         }
@@ -137,29 +156,10 @@ namespace Pre.Railway.Core.Services
             }
         }
 
-        //public void ReportTrainDeparture(List<Train> currentLiveBoard)
-        //{
-        //    NmbsService.DepartedTrains.Clear();
-
-        //    string currentTime = DateTime.Now.ToString("t");
-
-        //    foreach (Train train in currentLiveBoard)
-        //    {
-        //        if (train.DepartureTime == currentTime)
-        //        {
-        //            ReportDepartureToNmbs?.Invoke(this, new ReportDepartureEventArgs(NmbsService, train));
-        //            //nmbsService.DepartedTrains.Add(train);
-        //            //nmbsService.LogAnnouncement(nmbsService.FormatTrainDepartedEventInfo(train));
-        //        }
-        //    }
-        //}
-
         public void CompareCurrentWithDepartureTime(Clock clock)
         {
             string timeString = String.Concat(clock.TimeString.Take(5));
             DateTime clockTime = DateTime.Parse(timeString);
-
-
 
             foreach (Train train in CurrentLiveBoard)
             {
