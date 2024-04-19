@@ -140,7 +140,6 @@ namespace Pre.Railway.Core.Services
 
         public string CreateNewLogFile(string station)
         {
-            //    string stationName = CurrentStation;
             string date = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH'-'mm'-'ss");
             string fileName = $"trainlog-{date}-{station}.txt";
             string programDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
@@ -215,8 +214,6 @@ namespace Pre.Railway.Core.Services
 
             synth.SpeakCompleted += Synth_SpeakCompleted;
 
-            //synth.Dispose();
-
         }
 
         public async Task ReadQueueAsync()
@@ -229,6 +226,8 @@ namespace Pre.Railway.Core.Services
             {
                 return;
             }
+
+            promptBuilderQueue.ClearContent();
 
             foreach (string announcement in toBeRead)
             {

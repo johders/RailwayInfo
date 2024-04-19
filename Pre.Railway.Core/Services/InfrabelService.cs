@@ -27,10 +27,7 @@ namespace Pre.Railway.Core.Services
     {
 
         public event ReportDelayToNmbsEventHandler ReportDelayToNmbs;
-        //public event ReportDepartureToNmbsEventHandler ReportDepartureToNmbs;
-
         public event EventHandler<ReportDepartureEventArgs> DetectDeparture;
-
         public event AutoUpdateLiveBoardEvent AutoUpdateLiveBoard;
 
         const string stationsUrl = "https://api.irail.be/stations/?format=json&lang=nl";

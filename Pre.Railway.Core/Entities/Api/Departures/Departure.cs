@@ -45,27 +45,5 @@ namespace Pre.Railway.Core.Entities.Api.Departures
 
         public string DelayTimeConverted { get { return Delay.GetTime(); } }
 
-
-        //public DateTime ConvertedTime { get { return UnixTimeStampToDateTime(Time); } }
-
-        //private static DateTime today = DateTime.Now;
-
-        //private static DateTime midnight = new DateTime(today.Year, today.Month, today.Day, 0, 0, 0);
-
-        //private static TimeSpan difference = today - midnight;
-
-       
-
-
-
-        //public static DateTime UnixTimeStampToDateTime(string unixTimeStamp)
-        //{
-        //    double result = Convert.ToDouble(unixTimeStamp);
-
-        //    DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-        //    dateTime = dateTime.AddSeconds(result).ToLocalTime();           
-
-        //    return dateTime;
-        //}
     }
 }

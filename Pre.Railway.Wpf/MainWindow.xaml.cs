@@ -21,229 +21,215 @@ using Pre.Railway.Core.Event_Args;
 
 namespace Pre.Railway.Wpf
 {
-	/// <summary>
-	/// Interaction logic for MainWindow.xaml
-	/// </summary>
-	public partial class MainWindow : Window
-	{
-		Clock clock = new Clock(1000);
-		InfrabelService infrabelService = new InfrabelService();
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
+    {
+        Clock clock = new Clock(1000);
+        InfrabelService infrabelService = new InfrabelService();
 
-		public MainWindow()
-		{
+        public MainWindow()
+        {
 
-			Loaded += MainWindow_Loaded;
+            Loaded += MainWindow_Loaded;
 
-			infrabelService.CurrentStation = "Brugge";
+            infrabelService.CurrentStation = "Brugge";
 
-			clock.ClockTick += Clock_ClockTick;
-			clock.InfrabelService = infrabelService;
-			clock.StartClock();
-			try
-			{
+            clock.ClockTick += Clock_ClockTick;
+            clock.InfrabelService = infrabelService;
+            clock.StartClock();
+            try
+            {
 
-				clock.SilentLiveBoardUpdate();
-			}
-			catch (Exception ex)
-			{
-				MessageBox.Show(ex.Message);
-			}
-
-		}
-
-		private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
-		{
-
-			lstStations.SelectionChanged += LstStations_SelectionChanged;
-			infrabelService.ReportDelayToNmbs += InfrabelService_ReportDelayToNmbs;
-			infrabelService.DetectDeparture += Infrabel_DetectDeparture;
-			infrabelService.AutoUpdateLiveBoard += InfrabelService_AutoUpdateLiveBoard;
-
-			await PopulateStationsAsync();
-			await PopulateDeparturesAsync();
-
-		}
-
-		private void InfrabelService_AutoUpdateLiveBoard(object sender, EventArgs e)
-		{
-			List<Train> liveBoard = infrabelService.CurrentLiveBoard;
-			dgrTrains.ItemsSource = liveBoard;
-		}
-
-		private async void LstStations_SelectionChanged(object sender, SelectionChangedEventArgs e)
-		{
-
-			lblInfo.Content = string.Empty;
-
-			if (lstStations.SelectedItem != null)
-			{
-				lblTitle.Content = "... loading ...";
-				dgrTrains.ItemsSource = null;
-				infrabelService.CurrentStation = lstStations.SelectedItem.ToString();
-
-				await PopulateDeparturesAsync();
-				
-			}
-		}
-
-		async Task PopulateStationsAsync()
-		{
-
-			try
-			{
-				await infrabelService.GetStationsAsync();
-				PopulateStationsList();
-			}
-			catch (Exception ex)
-			{
-				MessageBox.Show(ex.Message);
-			}
-
-		}
-
-		async Task PopulateDeparturesAsync()
-		{
-			try
-			{
-				await infrabelService.GetDeparturesAsync();
-				infrabelService.NmbsService.ChangeLogPath(infrabelService.CurrentStation);
-				infrabelService.NmbsService.ClearPreviousStationInfo();
-				UpdateTitle();
-
-				List<Train> liveBoard = infrabelService.CurrentLiveBoard;
-				dgrTrains.ItemsSource = liveBoard;
-
-				clock.DetectDepartures();
-				infrabelService.ReportCurrentStationDelays(liveBoard);
-
-				await ReadSpeechAnnouncementItemsAsync();
+                clock.SilentLiveBoardUpdate();
             }
-			catch (Exception ex)
-			{
-				MessageBox.Show(ex.Message);
-			}
-		}
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
 
-		private void Infrabel_DetectDeparture(object sender, ReportDepartureEventArgs e)
-		{
+        }
 
-			var departedTrain = e.DepartedTrain;
-			var departedTrains = e.NmbsService.DepartedTrains;
+        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
 
-			var result = departedTrains.Any(t => t.DepartureTime == departedTrain.DepartureTime && t.Destination == departedTrain.Destination);
+            lstStations.SelectionChanged += LstStations_SelectionChanged;
+            infrabelService.ReportDelayToNmbs += InfrabelService_ReportDelayToNmbs;
+            infrabelService.DetectDeparture += Infrabel_DetectDeparture;
+            infrabelService.AutoUpdateLiveBoard += InfrabelService_AutoUpdateLiveBoard;
 
-			if (!result)
-			{
-				e.NmbsService.DepartedTrains.Add(e.DepartedTrain);
-			}
+            await PopulateStationsAsync();
+            await PopulateDeparturesAsync();
 
-			UpdateLiveBoard(e.NmbsService);
-		}
+        }
 
-		private void InfrabelService_ReportDelayToNmbs(object sender, ReportDelayEventArgs e)
-		{
+        private void InfrabelService_AutoUpdateLiveBoard(object sender, EventArgs e)
+        {
+            List<Train> liveBoard = infrabelService.CurrentLiveBoard;
+            dgrTrains.ItemsSource = liveBoard;
+        }
 
-			e.NmbsService.Delays.Add(e.DelayedTrain);
-			UpdateLiveBoard(e.NmbsService);
+        private async void LstStations_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
 
-		}
+            lblInfo.Content = string.Empty;
 
-		private void Clock_ClockTick(object sender, EventArgs e)
-		{
-			if (lblTime != null)
-			{
-				lblTime.Content = clock.TimeString;
-			}
-		}
+            if (lstStations.SelectedItem != null)
+            {
+                lblTitle.Content = "... loading ...";
+                dgrTrains.ItemsSource = null;
+                infrabelService.CurrentStation = lstStations.SelectedItem.ToString();
 
-		private void TxtStationFilter_KeyUp(object sender, KeyEventArgs e)
-		{
-			string userInput = txtStationFilter.Text;
+                await PopulateDeparturesAsync();
+            }
+        }
 
-			FilteredStationsDisplay(userInput);
-		}
+        private void Infrabel_DetectDeparture(object sender, ReportDepartureEventArgs e)
+        {
+            var departedTrain = e.DepartedTrain;
+            var departedTrains = e.NmbsService.DepartedTrains;
 
-		private void BtnPersonOnRails_Click(object sender, RoutedEventArgs e)
-		{
-			infrabelService.PersonOnTracksDelay();
-			dgrTrains.ItemsSource = infrabelService.CurrentLiveBoard.ToList();
-		}
+            var result = departedTrains.Any(t => t.DepartureTime == departedTrain.DepartureTime && t.Destination == departedTrain.Destination);
 
-		private void BtnAnnoyStudent_Click(object sender, RoutedEventArgs e)
-		{
-			infrabelService.LeaveEarly();
-			dgrTrains.ItemsSource = infrabelService.CurrentLiveBoard.ToList();
-		}
+            if (!result)
+            {
+                e.NmbsService.DepartedTrains.Add(e.DepartedTrain);
+            }
 
-		private void BtnTestTextToSpeech_Click(object sender, RoutedEventArgs e)
-		{
-			string albertHam = "Look at me, I'm a train on a track I'm a train, I'm a train, I'm a chucka train, yeah";
-			infrabelService.NmbsService.ReadText();
-		}
+            UpdateLiveBoardAsync(e.NmbsService);
+        }
 
-		async Task UpdateLiveBoard(NmbsService nmbsService)
-		{
-			lblInfo.Content = string.Empty;
-			nmbsService.UpdateLiveBoardAnnouncements();
-			nmbsService.UpdateLogFileAnnouncements();
+        private void InfrabelService_ReportDelayToNmbs(object sender, ReportDelayEventArgs e)
+        {
+            e.NmbsService.Delays.Add(e.DelayedTrain);
+            UpdateLiveBoardAsync(e.NmbsService);
+        }
 
-			var announcements = nmbsService.LiveBoardAnnouncements.ToList();
+        private void Clock_ClockTick(object sender, EventArgs e)
+        {
+            if (lblTime != null)
+            {
+                lblTime.Content = clock.TimeString;
+            }
+        }
+
+        private void TxtStationFilter_KeyUp(object sender, KeyEventArgs e)
+        {
+            string userInput = txtStationFilter.Text;
+
+            FilteredStationsDisplay(userInput);
+        }
+
+        private void BtnPersonOnRails_Click(object sender, RoutedEventArgs e)
+        {
+            infrabelService.PersonOnTracksDelay();
+            dgrTrains.ItemsSource = infrabelService.CurrentLiveBoard.ToList();
+        }
+
+        private void BtnAnnoyStudent_Click(object sender, RoutedEventArgs e)
+        {
+            infrabelService.LeaveEarly();
+            dgrTrains.ItemsSource = infrabelService.CurrentLiveBoard.ToList();
+        }
+
+        private void BtnTestTextToSpeech_Click(object sender, RoutedEventArgs e)
+        {
+            string albertHam = "Look at me, I'm a train on a track I'm a train, I'm a train, I'm a chucka train, yeah";
+            infrabelService.NmbsService.ReadText();
+        }
+
+        async Task PopulateStationsAsync()
+        {
+            try
+            {
+                await infrabelService.GetStationsAsync();
+                PopulateStationsList();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        async Task PopulateDeparturesAsync()
+        {
+            try
+            {
+                await infrabelService.GetDeparturesAsync();
+                infrabelService.NmbsService.ChangeLogPath(infrabelService.CurrentStation);
+                infrabelService.NmbsService.ClearPreviousStationInfo();
+                UpdateTitle();
+
+                List<Train> liveBoard = infrabelService.CurrentLiveBoard;
+                dgrTrains.ItemsSource = liveBoard;
+
+                clock.DetectDepartures();
+                infrabelService.ReportCurrentStationDelays(liveBoard);
+
+                await ReadSpeechAnnouncementItemsAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        async Task UpdateLiveBoardAsync(NmbsService nmbsService)
+        {
+            lblInfo.Content = string.Empty;
+            nmbsService.UpdateLiveBoardAnnouncements();
+            nmbsService.UpdateLogFileAnnouncements();
+
+            var announcements = nmbsService.LiveBoardAnnouncements.ToList();
             await SummarizeAnnouncementItemsAsync(announcements);
-			//var speechAnnouncements = nmbsService.SpeechAnnouncements.ToList();
 
-			//var readSpeech = ReadSpeechAnnouncementItemsAsync(nmbsService);
-			if (!nmbsService.Speaking)
-			{
-				await ReadQueuedAnnoucementsAsync();
-	
-			}
-            //var summarizeItems = SummarizeAnnouncementItemsAsync(announcements);
-            //await Task.WhenAll(readSpeech, summarizeItems);
+            if (!nmbsService.Speaking)
+            {
+                await ReadQueuedAnnoucementsAsync();
 
-            
-		}
+            }
+        }
 
-		async Task ReadSpeechAnnouncementItemsAsync()
-		{
-					
-				await infrabelService.NmbsService.ReadText();				
-			
-		}
+        async Task ReadSpeechAnnouncementItemsAsync()
+        {
+            await infrabelService.NmbsService.ReadText();
+        }
 
-		async Task ReadQueuedAnnoucementsAsync()
-		{
+        async Task ReadQueuedAnnoucementsAsync()
+        {
             await infrabelService.NmbsService.ReadQueueAsync();
         }
 
-		async Task SummarizeAnnouncementItemsAsync(List<string> announcements)
-		{
-			foreach (string announcement in announcements)
-			{
+        async Task SummarizeAnnouncementItemsAsync(List<string> announcements)
+        {
+            foreach (string announcement in announcements)
+            {
 
-				lblInfo.Content = $"📢 Opgelet: {announcement}";
-				await Task.Delay(10000);
-			}
-		}
+                lblInfo.Content = $"📢 Opgelet: {announcement}";
+                await Task.Delay(10000);
+            }
+        }
 
-		void PopulateStationsList()
-		{
-			lstStations.ItemsSource = infrabelService.StationsList
-				.OrderBy(s => s.Name);
-		}
+        void PopulateStationsList()
+        {
+            lstStations.ItemsSource = infrabelService.StationsList
+                .OrderBy(s => s.Name);
+        }
 
-		void FilteredStationsDisplay(string userInput)
-		{
+        void FilteredStationsDisplay(string userInput)
+        {
 
-			var result = infrabelService.StationsList
-			   .Where(s => s.Name.ToUpper().StartsWith(userInput.ToUpper()));
+            var result = infrabelService.StationsList
+               .Where(s => s.Name.ToUpper().StartsWith(userInput.ToUpper()));
 
-			lstStations.ItemsSource = result;
-		}
+            lstStations.ItemsSource = result;
+        }
 
-		void UpdateTitle()
-		{
-			lblTitle.Content = $"{infrabelService.CurrentStation}: Treinen bij vertrek";
-		}
+        void UpdateTitle()
+        {
+            lblTitle.Content = $"{infrabelService.CurrentStation}: Treinen bij vertrek";
+        }
 
-	}
+    }
 }

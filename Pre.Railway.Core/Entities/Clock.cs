@@ -61,11 +61,5 @@ namespace Pre.Railway.Core.Entities
             }
         }
 
-        public void StopClock(Clock clock)
-        {
-            clock.ClockTick -= ClockTick;
-        }
-
-
     }
 }
