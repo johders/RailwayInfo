@@ -216,6 +216,12 @@ namespace Pre.Railway.Core.Services
 
         }
 
+        public async Task TestSpeechAsync(string text)
+        {
+            SpeechSynthesizer testSynth = new SpeechSynthesizer();
+            testSynth.SpeakAsync(text);
+        }
+
         public async Task ReadQueueAsync()
         {
 

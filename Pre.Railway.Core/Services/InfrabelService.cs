@@ -60,7 +60,6 @@ namespace Pre.Railway.Core.Services
                 {
                     throw new Exception($"Er is een fout opgetreden: {ex.Message}");
                 }
-
             }
         }
 

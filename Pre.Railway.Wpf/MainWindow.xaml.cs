@@ -136,7 +136,7 @@ namespace Pre.Railway.Wpf
         private void BtnTestTextToSpeech_Click(object sender, RoutedEventArgs e)
         {
             string albertHam = "Look at me, I'm a train on a track I'm a train, I'm a train, I'm a chucka train, yeah";
-            infrabelService.NmbsService.ReadText();
+            infrabelService.NmbsService.TestSpeechAsync(albertHam);
         }
 
         async Task PopulateStationsAsync()
@@ -177,12 +177,27 @@ namespace Pre.Railway.Wpf
 
         async Task UpdateLiveBoardAsync(NmbsService nmbsService)
         {
-            lblInfo.Content = string.Empty;
+            //lblInfo.Content = string.Empty;
+            var announcements = nmbsService.LiveBoardAnnouncements.ToList();
+
             nmbsService.UpdateLiveBoardAnnouncements();
             nmbsService.UpdateLogFileAnnouncements();
+            List<string> newAnnouncements = new List<string>();
 
-            var announcements = nmbsService.LiveBoardAnnouncements.ToList();
-            await SummarizeAnnouncementItemsAsync(announcements);
+            foreach (var announcement in nmbsService.LiveBoardAnnouncements)
+            {
+                if (!announcements.Contains(announcement))
+                {
+                    newAnnouncements.Add(announcement);
+                }
+            }
+            
+            if(newAnnouncements.Count > 0)
+            {
+                lblInfo.Content = string.Empty;
+                await SummarizeAnnouncementItemsAsync(newAnnouncements);
+            }
+                      
 
             if (!nmbsService.Speaking)
             {
@@ -209,6 +224,7 @@ namespace Pre.Railway.Wpf
                 lblInfo.Content = $"📢 Opgelet: {announcement}";
                 await Task.Delay(10000);
             }
+
         }
 
         void PopulateStationsList()
