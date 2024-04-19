@@ -189,12 +189,15 @@ namespace Pre.Railway.Wpf
 
 			var announcements = nmbsService.LiveBoardAnnouncements.ToList();
             await SummarizeAnnouncementItemsAsync(announcements);
-            //var speechAnnouncements = nmbsService.SpeechAnnouncements.ToList();
+			//var speechAnnouncements = nmbsService.SpeechAnnouncements.ToList();
 
-            //var readSpeech = ReadSpeechAnnouncementItemsAsync(nmbsService);
-
+			//var readSpeech = ReadSpeechAnnouncementItemsAsync(nmbsService);
+			if (!nmbsService.Speaking)
+			{
+				await ReadQueuedAnnoucementsAsync();
+	
+			}
             //var summarizeItems = SummarizeAnnouncementItemsAsync(announcements);
-            await ReadQueuedAnnoucementsAsync();
             //await Task.WhenAll(readSpeech, summarizeItems);
 
             

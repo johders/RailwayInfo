@@ -22,7 +22,9 @@ namespace Pre.Railway.Core.Services
         public List<string> LiveBoardAnnouncements { get; } = new List<string>();
 
         public List<string> SpeechAnnouncements { get; set; } = new List<string>();
+        public bool Speaking { get; set; }
 
+        private List<string> newAnnouncements = new List<string>();
 
         public string LogFilePath { get; private set; }
 
@@ -43,6 +45,7 @@ namespace Pre.Railway.Core.Services
         public List<string> FilterAnnouncements()
         {
             List<string> allAnnouncements = new List<string>();
+            
             List<string> output = new List<string>();
 
             foreach (Train train in Delays)
@@ -64,6 +67,24 @@ namespace Pre.Railway.Core.Services
             }
 
             return output;
+
+        }
+
+        public List<string> FilterAnnouncements(List<string> allAnnouncements)
+        {
+
+            List<string> output = new List<string>();
+
+            foreach (string announcement in allAnnouncements)
+            {
+                if (!newAnnouncements.Contains(announcement))
+                {
+                    output.Add(announcement);
+                }
+            }
+
+            return output;
+
 
         }
 
@@ -188,6 +209,7 @@ namespace Pre.Railway.Core.Services
             announcementsCopy = SpeechAnnouncements;
 
             SpeechSynthesizer synth = new SpeechSynthesizer();
+            Speaking = true;
 
             synth.SpeakAsync(promptBuilder);
 
@@ -200,44 +222,36 @@ namespace Pre.Railway.Core.Services
         public async Task ReadQueueAsync()
         {
 
-            //List<string> announcementsQueue = new();
+            var allNewAnnouncements = FilterAnnouncements();
+            var toBeRead = FilterAnnouncements(allNewAnnouncements);
 
-            //foreach (string announcement in SpeechAnnouncements)
-            //{
+            if (toBeRead.Count == 0)
+            {
+                return;
+            }
 
-            //    if (!SpeechAnnouncements.Contains(announcement))
-            //    {
-            //        announcementsQueue.Add(announcement);
-            //    }
-
-            //}
-
-            //if(announcementsQueue.Count == 0)
-            //{
-            //    return;
-            //}
-
-            var restult = FilterAnnouncements();
-
-            foreach (string announcement in restult)
+            foreach (string announcement in toBeRead)
             {
                 promptBuilderQueue.AppendText(announcement);
                 promptBuilderQueue.AppendBreak(PromptBreak.Medium);
             }
 
-            if(FilterAnnouncements().Count == 0)
-            {
-                return;
-            }
+            newAnnouncements = allNewAnnouncements;
 
-            SpeechSynthesizer synth = new SpeechSynthesizer();
- 
-            synth.SpeakAsync(promptBuilderQueue);
+            SpeechSynthesizer queueSynth = new SpeechSynthesizer();
+            Speaking = true;
+            queueSynth.SpeakAsync(promptBuilderQueue);
+            queueSynth.SpeakCompleted += QueueSynth_SpeakCompleted;
+        }
+
+        private void QueueSynth_SpeakCompleted(object sender, SpeakCompletedEventArgs e)
+        {
+            Speaking = false;
         }
 
         private void Synth_SpeakCompleted(object sender, SpeakCompletedEventArgs e)
         {
-            ReadQueueAsync();
+            Speaking = false;
         }
     }
 }
