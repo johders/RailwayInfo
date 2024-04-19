@@ -117,7 +117,7 @@ namespace Pre.Railway.Wpf
 				infrabelService.ReportCurrentStationDelays(liveBoard);
 
 				await ReadSpeechAnnouncementItemsAsync();
-			}
+            }
 			catch (Exception ex)
 			{
 				MessageBox.Show(ex.Message);
@@ -188,15 +188,16 @@ namespace Pre.Railway.Wpf
 			nmbsService.UpdateLogFileAnnouncements();
 
 			var announcements = nmbsService.LiveBoardAnnouncements.ToList();
-			//var speechAnnouncements = nmbsService.SpeechAnnouncements.ToList();
-			
-			//var readSpeech = ReadSpeechAnnouncementItemsAsync(nmbsService);
+            await SummarizeAnnouncementItemsAsync(announcements);
+            //var speechAnnouncements = nmbsService.SpeechAnnouncements.ToList();
 
-			//var summarizeItems = SummarizeAnnouncementItemsAsync(announcements);
+            //var readSpeech = ReadSpeechAnnouncementItemsAsync(nmbsService);
 
-			//await Task.WhenAll(readSpeech, summarizeItems);
+            //var summarizeItems = SummarizeAnnouncementItemsAsync(announcements);
+            await ReadQueuedAnnoucementsAsync();
+            //await Task.WhenAll(readSpeech, summarizeItems);
 
-			await SummarizeAnnouncementItemsAsync(announcements);
+            
 		}
 
 		async Task ReadSpeechAnnouncementItemsAsync()
@@ -205,6 +206,11 @@ namespace Pre.Railway.Wpf
 				await infrabelService.NmbsService.ReadText();				
 			
 		}
+
+		async Task ReadQueuedAnnoucementsAsync()
+		{
+            await infrabelService.NmbsService.ReadQueueAsync();
+        }
 
 		async Task SummarizeAnnouncementItemsAsync(List<string> announcements)
 		{

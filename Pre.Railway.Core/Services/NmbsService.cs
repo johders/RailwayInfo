@@ -23,9 +23,11 @@ namespace Pre.Railway.Core.Services
 
         public List<string> SpeechAnnouncements { get; set; } = new List<string>();
 
-		public string LogFilePath { get; private set; }
+
+        public string LogFilePath { get; private set; }
 
         PromptBuilder promptBuilder = new PromptBuilder();
+        PromptBuilder promptBuilderQueue = new PromptBuilder();
 
         public void ChangeLogPath(string station)
         {
@@ -37,39 +39,66 @@ namespace Pre.Railway.Core.Services
             Delays.Clear();
             DepartedTrains.Clear();
         }
-       
+
+        public List<string> FilterAnnouncements()
+        {
+            List<string> allAnnouncements = new List<string>();
+            List<string> output = new List<string>();
+
+            foreach (Train train in Delays)
+            {
+                allAnnouncements.Add(FormatSpeechinfoDelay(train));
+            }
+
+            foreach (Train train in DepartedTrains)
+            {
+                allAnnouncements.Add(FormatSpeechinfoDeparted(train));
+            }
+
+            foreach(string announcement in allAnnouncements)
+            {
+                if (!SpeechAnnouncements.Contains(announcement))
+                {
+                    output.Add(announcement);
+                }
+            }
+
+            return output;
+
+        }
+
         public void UpdateLiveBoardAnnouncements()
         {
             LiveBoardAnnouncements.Clear();
-           
-            
-            foreach(Train train in Delays)
-            {
-                LiveBoardAnnouncements.Add(FormatTrainDelayEventInfo(train));              
-			}
 
-            foreach(Train train in DepartedTrains)
+
+            foreach (Train train in Delays)
+            {
+                LiveBoardAnnouncements.Add(FormatTrainDelayEventInfo(train));
+            }
+
+            foreach (Train train in DepartedTrains)
             {
                 LiveBoardAnnouncements.Add(FormatTrainDepartedEventInfo(train));
-			}
+            }
 
         }
 
         public void UpdateSpeechAnnouncements()
         {
-			SpeechAnnouncements.Clear();
+            SpeechAnnouncements.Clear();
             promptBuilder.ClearContent();
 
-			foreach (Train train in Delays)
-			{
-				SpeechAnnouncements.Add(FormatSpeechinfoDelay(train));
-			}
+            foreach (Train train in Delays)
+            {
+                SpeechAnnouncements.Add(FormatSpeechinfoDelay(train));
+            }
 
-			foreach (Train train in DepartedTrains)
-			{
-				SpeechAnnouncements.Add(FormatSpeechinfoDeparted(train));
-			}
-		}
+            foreach (Train train in DepartedTrains)
+            {
+                SpeechAnnouncements.Add(FormatSpeechinfoDeparted(train));
+            }
+        }
 
         public void UpdateLogFileAnnouncements()
         {
@@ -86,11 +115,11 @@ namespace Pre.Railway.Core.Services
             }
 
             WriteToLogFile();
-        }  
+        }
 
         public string CreateNewLogFile(string station)
         {
-        //    string stationName = CurrentStation;
+            //    string stationName = CurrentStation;
             string date = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH'-'mm'-'ss");
             string fileName = $"trainlog-{date}-{station}.txt";
             string programDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
@@ -104,26 +133,26 @@ namespace Pre.Railway.Core.Services
             StringBuilder sb = new StringBuilder();
             sb.AppendLine(date);
             sb.AppendLine();
-            sb.AppendLine(announcement);        
+            sb.AppendLine(announcement);
             sb.AppendLine("=================================================================");
-            
-           LogAnnouncements.Add(sb.ToString());
+
+            LogAnnouncements.Add(sb.ToString());
         }
 
         public string FormatSpeechinfoDelay(Train affectedTrain)
         {
-			int delayInMinutes = int.Parse(String.Concat(affectedTrain.Delay.Skip(3).Take(2)));
-			if (delayInMinutes == 0) delayInMinutes = 60;
+            int delayInMinutes = int.Parse(String.Concat(affectedTrain.Delay.Skip(3).Take(2)));
+            if (delayInMinutes == 0) delayInMinutes = 60;
 
-			return $"Platform {affectedTrain.Platform}. Train with destination {affectedTrain.Destination} has a {delayInMinutes} minute delay";
-		}
+            return $"Platform {affectedTrain.Platform}. Train with destination {affectedTrain.Destination} has a {delayInMinutes} minute delay";
+        }
 
-		public string FormatSpeechinfoDeparted(Train affectedTrain)
-		{
-			return $"Platform {affectedTrain.Platform}. Train with destination {affectedTrain.Destination} has departed at {affectedTrain.DepartureTime}";
-		}
+        public string FormatSpeechinfoDeparted(Train affectedTrain)
+        {
+            return $"Platform {affectedTrain.Platform}. Train with destination {affectedTrain.Destination} has departed at {affectedTrain.DepartureTime}";
+        }
 
-		public string FormatTrainDelayEventInfo(Train affectedTrain)
+        public string FormatTrainDelayEventInfo(Train affectedTrain)
         {
             int delayInMinutes = int.Parse(String.Concat(affectedTrain.Delay.Skip(3).Take(2)));
             if (delayInMinutes == 0) delayInMinutes = 60;
@@ -138,8 +167,8 @@ namespace Pre.Railway.Core.Services
         }
 
         public void WriteToLogFile()
-        {           
-            WriteService.WriteToFile(LogFilePath, LogAnnouncements);           
+        {
+            WriteService.WriteToFile(LogFilePath, LogAnnouncements);
         }
 
         public async Task ReadText()
@@ -148,9 +177,9 @@ namespace Pre.Railway.Core.Services
 
             List<string> announcementsCopy = new();
 
-			var result = SpeechAnnouncements.Any(a => a.Equals(announcementsCopy));
+            var result = SpeechAnnouncements.Any(a => a.Equals(announcementsCopy));
 
-			foreach (string announcement in SpeechAnnouncements) 
+            foreach (string announcement in SpeechAnnouncements)
             {
                 promptBuilder.AppendText(announcement);
                 promptBuilder.AppendBreak(PromptBreak.Medium);
@@ -158,10 +187,57 @@ namespace Pre.Railway.Core.Services
 
             announcementsCopy = SpeechAnnouncements;
 
-			SpeechSynthesizer synth = new SpeechSynthesizer();
-			synth.SpeakAsync(promptBuilder);
+            SpeechSynthesizer synth = new SpeechSynthesizer();
+
+            synth.SpeakAsync(promptBuilder);
+
+            synth.SpeakCompleted += Synth_SpeakCompleted;
 
             //synth.Dispose();
-		}
+
+        }
+
+        public async Task ReadQueueAsync()
+        {
+
+            //List<string> announcementsQueue = new();
+
+            //foreach (string announcement in SpeechAnnouncements)
+            //{
+
+            //    if (!SpeechAnnouncements.Contains(announcement))
+            //    {
+            //        announcementsQueue.Add(announcement);
+            //    }
+
+            //}
+
+            //if(announcementsQueue.Count == 0)
+            //{
+            //    return;
+            //}
+
+            var restult = FilterAnnouncements();
+
+            foreach (string announcement in restult)
+            {
+                promptBuilderQueue.AppendText(announcement);
+                promptBuilderQueue.AppendBreak(PromptBreak.Medium);
+            }
+
+            if(FilterAnnouncements().Count == 0)
+            {
+                return;
+            }
+
+            SpeechSynthesizer synth = new SpeechSynthesizer();
+ 
+            synth.SpeakAsync(promptBuilderQueue);
+        }
+
+        private void Synth_SpeakCompleted(object sender, SpeakCompletedEventArgs e)
+        {
+            ReadQueueAsync();
+        }
     }
 }
