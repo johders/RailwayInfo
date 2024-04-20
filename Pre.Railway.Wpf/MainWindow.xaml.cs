@@ -39,11 +39,11 @@ namespace Pre.Railway.Wpf
 
             clock.ClockTick += Clock_ClockTick;
             clock.InfrabelService = infrabelService;
-            clock.StartClock();
+            clock.StartClockAsync();
             try
             {
 
-                clock.SilentLiveBoardUpdate();
+                clock.SilentLiveBoardUpdateAsync();
             }
             catch (Exception ex)
             {
@@ -169,8 +169,8 @@ namespace Pre.Railway.Wpf
 
                 await ReadSpeechAnnouncementItemsAsync();
 
-                clock.DetectDepartures();
-                clock.DetectDelayUpdates();
+                //clock.DetectDeparturesAsync();
+                //clock.DetectDelayUpdatesAsync();
                 infrabelService.ReportCurrentStationDelays();
 
             }
@@ -199,7 +199,7 @@ namespace Pre.Railway.Wpf
 
         async Task ReadSpeechAnnouncementItemsAsync()
         {
-            await infrabelService.NmbsService.ReadText();
+            await infrabelService.NmbsService.ReadTextAsync();
         }
 
         async Task ReadQueuedAnnoucementsAsync()

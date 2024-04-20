@@ -192,7 +192,7 @@ namespace Pre.Railway.Core.Services
             WriteService.WriteToFile(LogFilePath, LogAnnouncements);
         }
 
-        public async Task ReadText()
+        public async Task ReadTextAsync()
         {
             UpdateSpeechAnnouncements();
 

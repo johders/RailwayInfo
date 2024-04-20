@@ -107,7 +107,6 @@ namespace Pre.Railway.Core.Services
                     differences.Add(train);
                 }
             }
-
         }
 
         List<Train> MapToLiveBoard(List<Departure> departures)
