@@ -63,7 +63,7 @@ namespace Pre.Railway.Core.Services
             }
         }
 
-        public async Task GetDeparturesAsync(/*string station*/)
+        public async Task GetDeparturesAsync()
         {
             string departuresUrl = $"https://api.irail.be/liveboard/?station={CurrentStation}&arrdep=departure&lang=nl&format=json&alerts=true";
             TimeTableForSelectedStation = new List<Departure>();

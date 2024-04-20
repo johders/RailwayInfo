@@ -56,7 +56,7 @@ namespace Pre.Railway.Core.Entities
 				}
                catch (Exception ex)
                 {
-                    throw new Exception($"oh no: {ex.Message}");
+                    Console.WriteLine(ex.Message);
                 }
             }
         }

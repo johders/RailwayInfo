@@ -28,6 +28,7 @@ namespace Pre.Railway.Wpf
     {
         Clock clock = new Clock(1000);
         InfrabelService infrabelService = new InfrabelService();
+        bool isSummarizing = false;
       
         public MainWindow()
         {
@@ -74,7 +75,7 @@ namespace Pre.Railway.Wpf
         {
 
             lblInfo.Content = string.Empty;
-
+            isSummarizing = false;
 
             if (lstStations.SelectedItem != null)
             {
@@ -178,15 +179,13 @@ namespace Pre.Railway.Wpf
 
         async Task UpdateLiveBoardAsync(NmbsService nmbsService)
         {
-            lblInfo.Content = string.Empty;
-           
-
+            
             nmbsService.UpdateLiveBoardAnnouncements();
             nmbsService.UpdateLogFileAnnouncements();
 
             var announcements = nmbsService.LiveBoardAnnouncements.ToList();
           
-                await SummarizeAnnouncementItemsAsync(announcements);
+            await SummarizeAnnouncementItemsAsync(announcements);
 
             if (!nmbsService.Speaking)
             {
@@ -207,6 +206,11 @@ namespace Pre.Railway.Wpf
 
         async Task SummarizeAnnouncementItemsAsync(List<string> announcements)
         {
+            if (isSummarizing) { return; }
+
+            isSummarizing = true;
+
+            lblInfo.Content = string.Empty;
 
             foreach (string announcement in announcements)
             {
@@ -215,6 +219,7 @@ namespace Pre.Railway.Wpf
                 await Task.Delay(10000);
             }
 
+            isSummarizing = false;
         }
 
         void PopulateStationsList()
