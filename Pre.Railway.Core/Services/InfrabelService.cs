@@ -40,6 +40,8 @@ namespace Pre.Railway.Core.Services
 
         public List<Train> CurrentLiveBoard { get; private set; } = new List<Train>();
 
+        public List<Train> PreviousLiveBoard { get; private set; } = new List<Train>();
+
         public NmbsService NmbsService { get; private set; } = new NmbsService();
 
         public async Task GetStationsAsync()
@@ -65,6 +67,8 @@ namespace Pre.Railway.Core.Services
 
         public async Task GetDeparturesAsync()
         {
+            PreviousLiveBoard = CurrentLiveBoard;
+
             string departuresUrl = $"https://api.irail.be/liveboard/?station={CurrentStation}&arrdep=departure&lang=nl&format=json&alerts=true";
             TimeTableForSelectedStation = new List<Departure>();
 
@@ -86,6 +90,24 @@ namespace Pre.Railway.Core.Services
 				}
             }
             CurrentLiveBoard = MapToLiveBoard(TimeTableForSelectedStation);
+
+            LookForDifferences();
+        }
+
+        public void LookForDifferences()
+        {
+            if (PreviousLiveBoard.Count == 0) return;
+
+            var differences = new List<Train>();
+
+            foreach(Train train in CurrentLiveBoard)
+            {
+               if (!PreviousLiveBoard.Contains(train)) 
+                {
+                    differences.Add(train);
+                }
+            }
+
         }
 
         List<Train> MapToLiveBoard(List<Departure> departures)
@@ -140,10 +162,10 @@ namespace Pre.Railway.Core.Services
             DetectDeparture?.Invoke(this, new ReportDepartureEventArgs(NmbsService, train));
         }
 
-        public void ReportCurrentStationDelays(List<Train> currentLiveBoard)
+        public void ReportCurrentStationDelays()
         {
             NmbsService.Delays.Clear();
-            foreach (Train train in currentLiveBoard)
+            foreach (Train train in CurrentLiveBoard)
             {
                 if (!String.IsNullOrEmpty(train.Delay))
                 {

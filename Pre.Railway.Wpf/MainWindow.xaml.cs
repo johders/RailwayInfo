@@ -69,6 +69,7 @@ namespace Pre.Railway.Wpf
         {
             List<Train> liveBoard = infrabelService.CurrentLiveBoard;
             dgrTrains.ItemsSource = liveBoard;
+
         }
 
         private async void LstStations_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -166,10 +167,12 @@ namespace Pre.Railway.Wpf
                 List<Train> liveBoard = infrabelService.CurrentLiveBoard;
                 dgrTrains.ItemsSource = liveBoard;
 
-                clock.DetectDepartures();
-                infrabelService.ReportCurrentStationDelays(liveBoard);
-
                 await ReadSpeechAnnouncementItemsAsync();
+
+                clock.DetectDepartures();
+                clock.DetectDelayUpdates();
+                infrabelService.ReportCurrentStationDelays();
+
             }
             catch (Exception ex)
             {

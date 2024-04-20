@@ -24,7 +24,7 @@ namespace Pre.Railway.Core.Entities
             Delay = delay;
         }
 
-        public async void StartClock()
+        public async Task StartClock()
         {
             while (true)
             {
@@ -34,12 +34,22 @@ namespace Pre.Railway.Core.Entities
             }            
         }
 
-        public async void DetectDepartures()
+        public async Task DetectDepartures()
         {
             while (true)
             {
                 CurrentTime = DateTime.Now;
                 InfrabelService.CompareCurrentWithDepartureTime(this);
+                await Task.Delay(Delay * 30);
+            }
+        }
+
+        public async Task DetectDelayUpdates()
+        {
+            while (true)
+            {
+                CurrentTime = DateTime.Now;
+                InfrabelService.ReportCurrentStationDelays();
                 await Task.Delay(Delay * 30);
             }
         }

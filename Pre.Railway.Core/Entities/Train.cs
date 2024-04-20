@@ -15,5 +15,18 @@ namespace Pre.Railway.Core.Entities
         public string Delay { get; set; }
         public string Destination { get; set; }
         public string Platform { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Train train &&
+                   DepartureTime == train.DepartureTime &&
+                   Destination == train.Destination &&
+                   Platform == train.Platform;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(DepartureTime, Destination, Platform);
+        }
     }
 }
