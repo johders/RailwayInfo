@@ -28,7 +28,7 @@ namespace Pre.Railway.Wpf
     {
         Clock clock = new Clock(1000);
         InfrabelService infrabelService = new InfrabelService();
-
+      
         public MainWindow()
         {
 
@@ -74,6 +74,7 @@ namespace Pre.Railway.Wpf
         {
 
             lblInfo.Content = string.Empty;
+
 
             if (lstStations.SelectedItem != null)
             {
@@ -177,27 +178,15 @@ namespace Pre.Railway.Wpf
 
         async Task UpdateLiveBoardAsync(NmbsService nmbsService)
         {
-            //lblInfo.Content = string.Empty;
-            var announcements = nmbsService.LiveBoardAnnouncements.ToList();
+            lblInfo.Content = string.Empty;
+           
 
             nmbsService.UpdateLiveBoardAnnouncements();
             nmbsService.UpdateLogFileAnnouncements();
-            List<string> newAnnouncements = new List<string>();
 
-            foreach (var announcement in nmbsService.LiveBoardAnnouncements)
-            {
-                if (!announcements.Contains(announcement))
-                {
-                    newAnnouncements.Add(announcement);
-                }
-            }
-            
-            if(newAnnouncements.Count > 0)
-            {
-                lblInfo.Content = string.Empty;
-                await SummarizeAnnouncementItemsAsync(newAnnouncements);
-            }
-                      
+            var announcements = nmbsService.LiveBoardAnnouncements.ToList();
+          
+                await SummarizeAnnouncementItemsAsync(announcements);
 
             if (!nmbsService.Speaking)
             {
@@ -218,6 +207,7 @@ namespace Pre.Railway.Wpf
 
         async Task SummarizeAnnouncementItemsAsync(List<string> announcements)
         {
+
             foreach (string announcement in announcements)
             {
 

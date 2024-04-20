@@ -90,6 +90,7 @@ namespace Pre.Railway.Core.Services
 
         public void UpdateLiveBoardAnnouncements()
         {
+
             LiveBoardAnnouncements.Clear();
 
 
