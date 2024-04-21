@@ -145,6 +145,8 @@ namespace Pre.Railway.Core.Services
             }
 
             var result = LogAnnouncements;
+
+
             WriteToLogFile();
         }
 
