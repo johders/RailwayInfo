@@ -10,7 +10,7 @@ namespace Pre.Railway.Core.Services
     {
         public static void WriteToFile(string path, List<string> content)
         {
-            using (StreamWriter writer  = new StreamWriter(path, append:false))
+            using (StreamWriter writer  = new StreamWriter(path, append:true))
             {
                 foreach (string line in content)
                 {

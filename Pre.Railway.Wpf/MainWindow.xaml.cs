@@ -75,7 +75,7 @@ namespace Pre.Railway.Wpf
         private async void LstStations_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
-            lblInfo.Content = string.Empty;
+            lblInfo.Content = "";
             isSummarizing = false;
 
             if (lstStations.SelectedItem != null)
@@ -98,15 +98,23 @@ namespace Pre.Railway.Wpf
             if (!result)
             {
                 e.NmbsService.DepartedTrains.Add(e.DepartedTrain);
+                UpdateLiveBoardAsync(e.NmbsService);
             }
 
-            UpdateLiveBoardAsync(e.NmbsService);
         }
 
         private void InfrabelService_ReportDelayToNmbs(object sender, ReportDelayEventArgs e)
         {
-            e.NmbsService.Delays.Add(e.DelayedTrain);
-            UpdateLiveBoardAsync(e.NmbsService);
+            var delayedTrain = e.DelayedTrain;
+            var delayedTrains = e.NmbsService.Delays;
+
+            var result = delayedTrains.Any(t => t.DepartureTime == delayedTrain.DepartureTime && t.Destination == delayedTrain.Destination && t.Delay == delayedTrain.Delay);
+
+            if (!result)
+            {
+                e.NmbsService.Delays.Add(e.DelayedTrain);
+                UpdateLiveBoardAsync(e.NmbsService);
+            }
         }
 
         private void Clock_ClockTick(object sender, EventArgs e)
@@ -213,7 +221,7 @@ namespace Pre.Railway.Wpf
 
             isSummarizing = true;
 
-            lblInfo.Content = string.Empty;
+            lblInfo.Content = "";
 
             foreach (string announcement in announcements)
             {

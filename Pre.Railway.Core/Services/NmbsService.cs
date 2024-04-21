@@ -18,6 +18,7 @@ namespace Pre.Railway.Core.Services
         public List<Train> DepartedTrains { get; private set; } = new List<Train>();
 
         public List<string> LogAnnouncements { get; } = new List<string>();
+        public List<Train> Announced { get; set; } = new List<Train>();
 
         public List<string> LiveBoardAnnouncements { get; } = new List<string>();
 
@@ -40,6 +41,8 @@ namespace Pre.Railway.Core.Services
         {
             Delays.Clear();
             DepartedTrains.Clear();
+            LiveBoardAnnouncements.Clear();
+            Announced.Clear();
         }
 
         public List<string> FilterAnnouncements()
@@ -122,20 +125,46 @@ namespace Pre.Railway.Core.Services
             }
         }
 
+        //public void UpdateLogFileAnnouncements()
+        //{
+        //    LogAnnouncements.Clear();
+
+        //    foreach (Train train in Delays)
+        //    {
+        //        LogAnnouncement(FormatTrainDelayEventInfo(train));
+        //    }
+
+        //    foreach (Train train in DepartedTrains)
+        //    {
+        //        LogAnnouncement(FormatTrainDepartedEventInfo(train));
+        //    }
+
+        //    WriteToLogFile();
+        //}
+
         public void UpdateLogFileAnnouncements()
         {
             LogAnnouncements.Clear();
 
             foreach (Train train in Delays)
             {
-                LogAnnouncement(FormatTrainDelayEventInfo(train));
+                if (!Announced.Contains(train))
+                {
+                    LogAnnouncement(FormatTrainDelayEventInfo(train));
+                    Announced.Add(train);
+                }
             }
 
             foreach (Train train in DepartedTrains)
             {
-                LogAnnouncement(FormatTrainDepartedEventInfo(train));
+                if (!Announced.Contains(train))
+                {
+                    LogAnnouncement(FormatTrainDepartedEventInfo(train));
+                    Announced.Add(train);
+                }
             }
 
+            var result = LogAnnouncements;
             WriteToLogFile();
         }
 

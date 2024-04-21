@@ -34,26 +34,6 @@ namespace Pre.Railway.Core.Entities
             }            
         }
 
-        //public async Task DetectDeparturesAsync()
-        //{
-        //    while (true)
-        //    {
-        //        CurrentTime = DateTime.Now;
-        //        InfrabelService.CompareCurrentWithDepartureTime(this);
-        //        await Task.Delay(Delay * 30);
-        //    }
-        //}
-
-        //public async Task DetectDelayUpdatesAsync()
-        //{
-        //    while (true)
-        //    {
-        //        CurrentTime = DateTime.Now;
-        //        InfrabelService.ReportCurrentStationDelays();
-        //        await Task.Delay(Delay * 30);
-        //    }
-        //}
-
         public async void SilentLiveBoardUpdateAsync()
         {
             while (true)
