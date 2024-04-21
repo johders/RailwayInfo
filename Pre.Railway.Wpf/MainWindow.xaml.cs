@@ -180,6 +180,7 @@ namespace Pre.Railway.Wpf
                 //clock.DetectDeparturesAsync();
                 //clock.DetectDelayUpdatesAsync();
                 infrabelService.ReportCurrentStationDelays();
+                infrabelService.CompareCurrentWithDepartureTime(clock);
 
             }
             catch (Exception ex)
