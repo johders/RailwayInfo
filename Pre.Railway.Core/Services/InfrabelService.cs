@@ -163,7 +163,6 @@ namespace Pre.Railway.Core.Services
 
         public void ReportCurrentStationDelays()
         {
-            //NmbsService.Delays.Clear();
             foreach (Train train in CurrentLiveBoard)
             {
                 if (!String.IsNullOrEmpty(train.Delay))

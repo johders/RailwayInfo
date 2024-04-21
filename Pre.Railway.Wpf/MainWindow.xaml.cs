@@ -177,8 +177,6 @@ namespace Pre.Railway.Wpf
 
                 await ReadSpeechAnnouncementItemsAsync();
 
-                //clock.DetectDeparturesAsync();
-                //clock.DetectDelayUpdatesAsync();
                 infrabelService.ReportCurrentStationDelays();
                 infrabelService.CompareCurrentWithDepartureTime(clock);
 

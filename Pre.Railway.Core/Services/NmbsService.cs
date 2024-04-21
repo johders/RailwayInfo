@@ -88,14 +88,12 @@ namespace Pre.Railway.Core.Services
 
             return output;
 
-
         }
 
         public void UpdateLiveBoardAnnouncements()
         {
 
             LiveBoardAnnouncements.Clear();
-
 
             foreach (Train train in Delays)
             {
@@ -106,7 +104,6 @@ namespace Pre.Railway.Core.Services
             {
                 LiveBoardAnnouncements.Add(FormatTrainDepartedEventInfo(train));
             }
-
         }
 
         public void UpdateSpeechAnnouncements()
@@ -124,23 +121,6 @@ namespace Pre.Railway.Core.Services
                 SpeechAnnouncements.Add(FormatSpeechinfoDeparted(train));
             }
         }
-
-        //public void UpdateLogFileAnnouncements()
-        //{
-        //    LogAnnouncements.Clear();
-
-        //    foreach (Train train in Delays)
-        //    {
-        //        LogAnnouncement(FormatTrainDelayEventInfo(train));
-        //    }
-
-        //    foreach (Train train in DepartedTrains)
-        //    {
-        //        LogAnnouncement(FormatTrainDepartedEventInfo(train));
-        //    }
-
-        //    WriteToLogFile();
-        //}
 
         public void UpdateLogFileAnnouncements()
         {
