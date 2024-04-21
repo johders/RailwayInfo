@@ -20,6 +20,7 @@ namespace Pre.Railway.Core.Entities
         {
             return obj is Train train &&
                    DepartureTime == train.DepartureTime &&
+                   Delay == train.Delay &&
                    Destination == train.Destination &&
                    Platform == train.Platform;
         }

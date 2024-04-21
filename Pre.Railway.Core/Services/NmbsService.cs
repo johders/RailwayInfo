@@ -18,7 +18,9 @@ namespace Pre.Railway.Core.Services
         public List<Train> DepartedTrains { get; private set; } = new List<Train>();
 
         public List<string> LogAnnouncements { get; } = new List<string>();
-        public List<Train> Announced { get; set; } = new List<Train>();
+        public List<Train> AnnouncedDelay { get; set; } = new List<Train>();
+
+        public List<Train> AnnouncedDeparture { get; set; } = new List<Train>();
 
         public List<string> LiveBoardAnnouncements { get; } = new List<string>();
 
@@ -42,7 +44,8 @@ namespace Pre.Railway.Core.Services
             Delays.Clear();
             DepartedTrains.Clear();
             LiveBoardAnnouncements.Clear();
-            Announced.Clear();
+            AnnouncedDelay.Clear();
+            AnnouncedDeparture.Clear();
         }
 
         public List<string> FilterAnnouncements()
@@ -128,19 +131,19 @@ namespace Pre.Railway.Core.Services
 
             foreach (Train train in Delays)
             {
-                if (!Announced.Contains(train))
+                if (!AnnouncedDelay.Contains(train))
                 {
                     LogAnnouncement(FormatTrainDelayEventInfo(train));
-                    Announced.Add(train);
+                    AnnouncedDelay.Add(train);
                 }
             }
 
             foreach (Train train in DepartedTrains)
             {
-                if (!Announced.Contains(train))
+                if (!AnnouncedDeparture.Contains(train))
                 {
                     LogAnnouncement(FormatTrainDepartedEventInfo(train));
-                    Announced.Add(train);
+                    AnnouncedDeparture.Add(train);
                 }
             }
 

@@ -1,0 +1,270 @@
+2024-04-21T20:13:36
+
+spoor 9 De trein naar Oostende heeft 5 minuten vertraging
+=================================================================
+
+2024-04-21T20:13:54
+
+spoor 9 De trein naar Oostende heeft 5 minuten vertraging
+=================================================================
+
+2024-04-21T20:13:54
+
+spoor 5 De trein naar Brussel-Zuid heeft 1 minuut vertraging
+=================================================================
+
+2024-04-21T20:13:56
+
+spoor 9 De trein naar Oostende heeft 5 minuten vertraging
+=================================================================
+
+2024-04-21T20:13:56
+
+spoor 5 De trein naar Brussel-Zuid heeft 1 minuut vertraging
+=================================================================
+
+2024-04-21T20:13:56
+
+spoor 10 De trein naar Antwerpen-Centraal heeft 1 minuut vertraging
+=================================================================
+
+2024-04-21T20:13:58
+
+spoor 9 De trein naar Oostende heeft 5 minuten vertraging
+=================================================================
+
+2024-04-21T20:13:58
+
+spoor 5 De trein naar Brussel-Zuid heeft 1 minuut vertraging
+=================================================================
+
+2024-04-21T20:13:58
+
+spoor 10 De trein naar Antwerpen-Centraal heeft 1 minuut vertraging
+=================================================================
+
+2024-04-21T20:13:58
+
+spoor 6 De trein naar Puurs heeft 1 minuut vertraging
+=================================================================
+
+2024-04-21T20:14:00
+
+spoor 9 De trein naar Oostende heeft 5 minuten vertraging
+=================================================================
+
+2024-04-21T20:14:00
+
+spoor 5 De trein naar Brussel-Zuid heeft 1 minuut vertraging
+=================================================================
+
+2024-04-21T20:14:00
+
+spoor 10 De trein naar Antwerpen-Centraal heeft 1 minuut vertraging
+=================================================================
+
+2024-04-21T20:14:00
+
+spoor 6 De trein naar Puurs heeft 1 minuut vertraging
+=================================================================
+
+2024-04-21T20:14:00
+
+spoor 8 De trein naar Antwerpen-Centraal heeft 3 minuten vertraging
+=================================================================
+
+2024-04-21T20:14:01
+
+spoor 9 De trein naar Oostende heeft 5 minuten vertraging
+=================================================================
+
+2024-04-21T20:14:01
+
+spoor 5 De trein naar Brussel-Zuid heeft 1 minuut vertraging
+=================================================================
+
+2024-04-21T20:14:01
+
+spoor 10 De trein naar Antwerpen-Centraal heeft 1 minuut vertraging
+=================================================================
+
+2024-04-21T20:14:01
+
+spoor 6 De trein naar Puurs heeft 1 minuut vertraging
+=================================================================
+
+2024-04-21T20:14:01
+
+spoor 8 De trein naar Antwerpen-Centraal heeft 3 minuten vertraging
+=================================================================
+
+2024-04-21T20:14:01
+
+spoor 9 De trein naar Brussel-Zuid heeft 2 minuten vertraging
+=================================================================
+
+2024-04-21T20:14:04
+
+spoor 9 De trein naar Oostende heeft 5 minuten vertraging
+=================================================================
+
+2024-04-21T20:14:04
+
+spoor 5 De trein naar Brussel-Zuid heeft 1 minuut vertraging
+=================================================================
+
+2024-04-21T20:14:04
+
+spoor 10 De trein naar Antwerpen-Centraal heeft 1 minuut vertraging
+=================================================================
+
+2024-04-21T20:14:04
+
+spoor 6 De trein naar Puurs heeft 1 minuut vertraging
+=================================================================
+
+2024-04-21T20:14:04
+
+spoor 8 De trein naar Antwerpen-Centraal heeft 3 minuten vertraging
+=================================================================
+
+2024-04-21T20:14:04
+
+spoor 9 De trein naar Brussel-Zuid heeft 2 minuten vertraging
+=================================================================
+
+2024-04-21T20:14:04
+
+spoor 5 De trein naar Sint-Joris-Weert heeft 2 minuten vertraging
+=================================================================
+
+2024-04-21T20:14:21
+
+spoor 9 De trein naar Oostende heeft 5 minuten vertraging
+=================================================================
+
+2024-04-21T20:14:21
+
+spoor 5 De trein naar Brussel-Zuid heeft 1 minuut vertraging
+=================================================================
+
+2024-04-21T20:14:21
+
+spoor 10 De trein naar Antwerpen-Centraal heeft 1 minuut vertraging
+=================================================================
+
+2024-04-21T20:14:21
+
+spoor 6 De trein naar Puurs heeft 1 minuut vertraging
+=================================================================
+
+2024-04-21T20:14:21
+
+spoor 8 De trein naar Antwerpen-Centraal heeft 3 minuten vertraging
+=================================================================
+
+2024-04-21T20:14:21
+
+spoor 9 De trein naar Brussel-Zuid heeft 2 minuten vertraging
+=================================================================
+
+2024-04-21T20:14:21
+
+spoor 5 De trein naar Sint-Joris-Weert heeft 2 minuten vertraging
+=================================================================
+
+2024-04-21T20:14:27
+
+De trein naar Antwerpen-Centraal is vertrokken om 20:10
+=================================================================
+
+2024-04-21T20:14:29
+
+spoor 9 De trein naar Oostende heeft 5 minuten vertraging
+=================================================================
+
+2024-04-21T20:14:29
+
+spoor 5 De trein naar Brussel-Zuid heeft 1 minuut vertraging
+=================================================================
+
+2024-04-21T20:14:29
+
+spoor 10 De trein naar Antwerpen-Centraal heeft 1 minuut vertraging
+=================================================================
+
+2024-04-21T20:14:29
+
+spoor 6 De trein naar Puurs heeft 1 minuut vertraging
+=================================================================
+
+2024-04-21T20:14:29
+
+spoor 8 De trein naar Antwerpen-Centraal heeft 3 minuten vertraging
+=================================================================
+
+2024-04-21T20:14:29
+
+spoor 9 De trein naar Brussel-Zuid heeft 2 minuten vertraging
+=================================================================
+
+2024-04-21T20:14:29
+
+spoor 5 De trein naar Sint-Joris-Weert heeft 2 minuten vertraging
+=================================================================
+
+2024-04-21T20:14:30
+
+De trein naar Antwerpen-Centraal is vertrokken om 20:10
+=================================================================
+
+2024-04-21T20:14:33
+
+De trein naar Oostende is vertrokken om 20:11
+=================================================================
+
+2024-04-21T20:14:43
+
+spoor 9 De trein naar Oostende heeft 5 minuten vertraging
+=================================================================
+
+2024-04-21T20:14:43
+
+spoor 5 De trein naar Brussel-Zuid heeft 1 minuut vertraging
+=================================================================
+
+2024-04-21T20:14:43
+
+spoor 10 De trein naar Antwerpen-Centraal heeft 1 minuut vertraging
+=================================================================
+
+2024-04-21T20:14:43
+
+spoor 6 De trein naar Puurs heeft 1 minuut vertraging
+=================================================================
+
+2024-04-21T20:14:43
+
+spoor 8 De trein naar Antwerpen-Centraal heeft 3 minuten vertraging
+=================================================================
+
+2024-04-21T20:14:43
+
+spoor 9 De trein naar Brussel-Zuid heeft 2 minuten vertraging
+=================================================================
+
+2024-04-21T20:14:43
+
+spoor 5 De trein naar Sint-Joris-Weert heeft 2 minuten vertraging
+=================================================================
+
+2024-04-21T20:14:44
+
+De trein naar Antwerpen-Centraal is vertrokken om 20:10
+=================================================================
+
+2024-04-21T20:14:45
+
+De trein naar Oostende is vertrokken om 20:11
+=================================================================
+
