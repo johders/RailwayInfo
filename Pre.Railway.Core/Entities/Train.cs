@@ -27,7 +27,7 @@ namespace Pre.Railway.Core.Entities
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(DepartureTime, Destination, Platform);
+            return HashCode.Combine(DepartureTime, Delay, Destination, Platform);
         }
     }
 }

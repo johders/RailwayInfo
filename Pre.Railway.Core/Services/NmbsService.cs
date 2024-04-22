@@ -13,24 +13,30 @@ namespace Pre.Railway.Core.Services
 {
     public class NmbsService
     {
-        public List<Train> Delays { get; private set; } = new List<Train>();
-
-        public List<Train> DepartedTrains { get; private set; } = new List<Train>();
-
-        public List<string> LogAnnouncements { get; } = new List<string>();
-        public List<Train> AnnouncedDelay { get; set; } = new List<Train>();
-
-        public List<Train> AnnouncedDeparture { get; set; } = new List<Train>();
-
-        public List<string> LiveBoardAnnouncements { get; } = new List<string>();
-
-        public List<string> SpeechAnnouncements { get; set; } = new List<string>();
-        public bool Speaking { get; set; }
         private List<string> allreadyRead = new List<string>();
         private int speechHelper = 0;
+        PromptBuilder promptBuilderQueue = new PromptBuilder();
+
+        public List<Train> Delays { get; } = new List<Train>();
+        public List<Train> DepartedTrains { get; } = new List<Train>();
+        public List<string> LogAnnouncements { get; } = new List<string>();
+        public List<Train> AnnouncedDelay { get; } = new List<Train>();
+        public List<Train> AnnouncedDeparture { get; } = new List<Train>();
+        public List<string> LiveBoardAnnouncements { get; } = new List<string>();
+        public List<string> SpeechAnnouncements { get; } = new List<string>();
+        public bool Speaking { get; set; }
         public string LogFilePath { get; private set; }
 
-        PromptBuilder promptBuilderQueue = new PromptBuilder();
+        private void QueueSynth_SpeakCompleted(object sender, SpeakCompletedEventArgs e)
+        {
+            Speaking = false;
+            speechHelper++;
+            if (speechHelper == 1)
+            {
+                ReadQueueAsync();
+                speechHelper++;
+            }
+        }
 
         public void ChangeLogPath(string station)
         {
@@ -177,18 +183,6 @@ namespace Pre.Railway.Core.Services
                 queueSynth.SpeakCompleted += QueueSynth_SpeakCompleted;
             }
 
-        }
-        
-
-        private void QueueSynth_SpeakCompleted(object sender, SpeakCompletedEventArgs e)
-        {
-            Speaking = false;
-            speechHelper++;
-            if (speechHelper == 1)
-            {
-                ReadQueueAsync();
-                speechHelper++;
-            }
         }
 
     }

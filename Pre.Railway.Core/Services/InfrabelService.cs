@@ -37,11 +37,8 @@ namespace Pre.Railway.Core.Services
         public List<TrainStation> StationsList { get; set; }
         public List<Departure> TimeTableForSelectedStation { get; set; }
         public string CurrentStation { get; set; }
-
         public List<Train> CurrentLiveBoard { get; private set; } = new List<Train>();
-
         public List<Train> PreviousLiveBoard { get; private set; } = new List<Train>();
-
         public NmbsService NmbsService { get; private set; } = new NmbsService();
 
         public async Task GetStationsAsync()
@@ -64,7 +61,6 @@ namespace Pre.Railway.Core.Services
                 }
             }
         }
-
         public async Task GetDeparturesAsync()
         {
             PreviousLiveBoard = CurrentLiveBoard;
@@ -90,23 +86,6 @@ namespace Pre.Railway.Core.Services
 				}
             }
             CurrentLiveBoard = MapToLiveBoard(TimeTableForSelectedStation);
-
-            LookForDifferences();
-        }
-
-        public void LookForDifferences()
-        {
-            if (PreviousLiveBoard.Count == 0) return;
-
-            var differences = new List<Train>();
-
-            foreach(Train train in CurrentLiveBoard)
-            {
-               if (!PreviousLiveBoard.Contains(train)) 
-                {
-                    differences.Add(train);
-                }
-            }
         }
 
         List<Train> MapToLiveBoard(List<Departure> departures)
@@ -122,7 +101,6 @@ namespace Pre.Railway.Core.Services
             })
             .OrderBy(t => t.DepartureTime)
             .ThenBy(t => t.Destination).ToList();
-
         }
 
         public void LiveBoardUpdated()
@@ -184,9 +162,7 @@ namespace Pre.Railway.Core.Services
                     DetectDeparture?.Invoke(this, new ReportDepartureEventArgs(NmbsService, train));
                 }
             }
-
         }
-
-       
+      
     }
 }
