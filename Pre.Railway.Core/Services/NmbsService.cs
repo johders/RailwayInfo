@@ -46,89 +46,13 @@ namespace Pre.Railway.Core.Services
             AnnouncedDelay.Clear();
             AnnouncedDeparture.Clear();
             LiveBoardAnnouncements.Clear();
-        }
-
-        public List<string> FilterAnnouncements()
-        {
-            List<string> allAnnouncements = new List<string>();
-            
-            List<string> output = new List<string>();
-
-            foreach (Train train in Delays)
-            {
-                allAnnouncements.Add(FormatSpeechinfoDelay(train));
-            }
-
-            foreach (Train train in DepartedTrains)
-            {
-                allAnnouncements.Add(FormatSpeechinfoDeparted(train));
-            }
-
-            foreach(string announcement in allAnnouncements)
-            {
-                if (!SpeechAnnouncements.Contains(announcement))
-                {
-                    output.Add(announcement);
-                }
-            }
-
-            return output;
-
-        }
-
-        public List<string> FilterAnnouncements(List<string> allAnnouncements)
-        {
-
-            List<string> output = new List<string>();
-
-            foreach (string announcement in allAnnouncements)
-            {
-                if (!newAnnouncements.Contains(announcement))
-                {
-                    output.Add(announcement);
-                }
-            }
-
-            return output;
-
-        }
-
-        //public void UpdateLiveBoardAnnouncements()
-        //{
-
-        //    LiveBoardAnnouncements.Clear();
-
-        //    foreach (Train train in Delays)
-        //    {
-        //        LiveBoardAnnouncements.Add(FormatTrainDelayEventInfo(train));
-        //    }
-
-        //    foreach (Train train in DepartedTrains)
-        //    {
-        //        LiveBoardAnnouncements.Add(FormatTrainDepartedEventInfo(train));
-        //    }
-        //}
-
-        public void UpdateSpeechAnnouncements()
-        {
             SpeechAnnouncements.Clear();
-            promptBuilder.ClearContent();
-
-            foreach (Train train in Delays)
-            {
-                SpeechAnnouncements.Add(FormatSpeechinfoDelay(train));
-            }
-
-            foreach (Train train in DepartedTrains)
-            {
-                SpeechAnnouncements.Add(FormatSpeechinfoDeparted(train));
-            }
         }
 
-        public void UpdateLogFileAnnouncements()
+        public void UpdateLogFileAndLiveBoardAnnouncements()
         {
             LogAnnouncements.Clear();
-            //LiveBoardAnnouncements.Clear();
+            //SpeechAnnouncements.Clear();
 
             foreach (Train train in Delays)
             {
@@ -136,6 +60,7 @@ namespace Pre.Railway.Core.Services
                 {
                     LogAnnouncement(FormatTrainDelayEventInfo(train));
                     LiveBoardAnnouncements.Add(FormatTrainDelayEventInfo(train));
+                    SpeechAnnouncements.Add(FormatSpeechinfoDelay(train));
                     AnnouncedDelay.Add(train);
                 }
             }
@@ -146,6 +71,7 @@ namespace Pre.Railway.Core.Services
                 {
                     LogAnnouncement(FormatTrainDepartedEventInfo(train));
                     LiveBoardAnnouncements.Add(FormatTrainDepartedEventInfo(train));
+                    SpeechAnnouncements.Add(FormatSpeechinfoDeparted(train));
                     AnnouncedDeparture.Add(train);
                 }
             }
@@ -208,42 +134,17 @@ namespace Pre.Railway.Core.Services
             WriteService.WriteToFile(LogFilePath, LogAnnouncements);
         }
 
-        public async Task ReadTextAsync()
-        {
-            UpdateSpeechAnnouncements();
-
-            List<string> announcementsCopy = new();
-
-            var result = SpeechAnnouncements.Any(a => a.Equals(announcementsCopy));
-
-            foreach (string announcement in SpeechAnnouncements)
-            {
-                promptBuilder.AppendText(announcement);
-                promptBuilder.AppendBreak(PromptBreak.Medium);
-            }
-
-            announcementsCopy = SpeechAnnouncements;
-
-            SpeechSynthesizer synth = new SpeechSynthesizer();
-            Speaking = true;
-
-            synth.SpeakAsync(promptBuilder);
-
-            synth.SpeakCompleted += Synth_SpeakCompleted;
-
-        }
-
         public async Task TestSpeechAsync(string text)
         {
             SpeechSynthesizer testSynth = new SpeechSynthesizer();
             testSynth.SpeakAsync(text);
         }
 
+        private List<string> allreadyRead = new List<string>();
         public async Task ReadQueueAsync()
         {
 
-            var allNewAnnouncements = FilterAnnouncements();
-            var toBeRead = FilterAnnouncements(allNewAnnouncements);
+            var toBeRead = SpeechAnnouncements;
 
             if (toBeRead.Count == 0)
             {
@@ -254,16 +155,22 @@ namespace Pre.Railway.Core.Services
 
             foreach (string announcement in toBeRead)
             {
-                promptBuilderQueue.AppendText(announcement);
-                promptBuilderQueue.AppendBreak(PromptBreak.Medium);
+                if(!allreadyRead.Contains(announcement))
+                {
+                    promptBuilderQueue.AppendText(announcement);
+                    promptBuilderQueue.AppendBreak(PromptBreak.Medium);
+                    allreadyRead.Add(announcement);
+                }
             }
 
-            newAnnouncements = allNewAnnouncements;
-
-            SpeechSynthesizer queueSynth = new SpeechSynthesizer();
-            Speaking = true;
-            queueSynth.SpeakAsync(promptBuilderQueue);
-            queueSynth.SpeakCompleted += QueueSynth_SpeakCompleted;
+            if (!Speaking)
+            {
+                SpeechSynthesizer queueSynth = new SpeechSynthesizer();
+                Speaking = true;
+                queueSynth.SpeakAsync(promptBuilderQueue);
+                queueSynth.SpeakCompleted += QueueSynth_SpeakCompleted;
+            }
+            
         }
 
         private void QueueSynth_SpeakCompleted(object sender, SpeakCompletedEventArgs e)
@@ -271,9 +178,5 @@ namespace Pre.Railway.Core.Services
             Speaking = false;
         }
 
-        private void Synth_SpeakCompleted(object sender, SpeakCompletedEventArgs e)
-        {
-            Speaking = false;
-        }
     }
 }

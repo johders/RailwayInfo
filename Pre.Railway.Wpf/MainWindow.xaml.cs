@@ -28,7 +28,6 @@ namespace Pre.Railway.Wpf
     {
         Clock clock = new Clock(1000);
         InfrabelService infrabelService = new InfrabelService();
-        bool isSummarizing = false;
       
         public MainWindow()
         {
@@ -76,7 +75,6 @@ namespace Pre.Railway.Wpf
         {
 
             lblInfo.Content = "";
-            isSummarizing = false;
 
             if (lstStations.SelectedItem != null)
             {
@@ -93,7 +91,6 @@ namespace Pre.Railway.Wpf
             var departedTrain = e.DepartedTrain;
             var departedTrains = e.NmbsService.DepartedTrains;
 
-            //var result = departedTrains.Any(t => t.DepartureTime == departedTrain.DepartureTime && t.Destination == departedTrain.Destination);
             var alreadyAnnounced = departedTrains.Any(t => t.Equals(departedTrain));
 
             if (!alreadyAnnounced)
@@ -108,8 +105,6 @@ namespace Pre.Railway.Wpf
         {
             var delayedTrain = e.DelayedTrain;
             var delayedTrains = e.NmbsService.Delays;
-
-            //var result = delayedTrains.Any(t => t.DepartureTime == delayedTrain.DepartureTime && t.Destination == delayedTrain.Destination && t.Delay == delayedTrain.Delay);
 
             var alreadyAnnounced = delayedTrains.Any(t => t.Equals(delayedTrain));
 
@@ -193,64 +188,25 @@ namespace Pre.Railway.Wpf
         private async Task UpdateLiveBoardAsync(NmbsService nmbsService)
         {
             
-            //nmbsService.UpdateLiveBoardAnnouncements();
-            nmbsService.UpdateLogFileAnnouncements();
+            nmbsService.UpdateLogFileAndLiveBoardAnnouncements();
 
             var announcements = nmbsService.LiveBoardAnnouncements;
 
-            await Announce(announcements);
-
-            //await SummarizeAnnouncementItemsAsync(announcements);
-
-            //var announcements = nmbsService.LiveBoardAnnouncements.ToList();
-
-            //await SummarizeAnnouncementItemsAsync(announcements);
-
-            //if (!nmbsService.Speaking)
-            //{
-            //    await ReadQueuedAnnoucementsAsync();
-
-            //}
-
-            //Task.WhenAll(SummarizeAnnouncementItemsAsync(announcements), ReadQueuedAnnoucementsAsync());
-
+            await Task.WhenAll(AnnounceEventsAsync(announcements), ReadQueuedAnnoucementsAsync());
         }
 
-        async Task Announce(List<string> announcements)
+        async Task AnnounceEventsAsync(List<string> announcements)
         {
             foreach (string announcement in announcements)
             {
                 lblInfo.Content = $"📢 Opgelet: {announcement}";
                 await Task.Delay(10000);
             }
-        }
-
-        async Task ReadSpeechAnnouncementItemsAsync()
-        {
-            await infrabelService.NmbsService.ReadTextAsync();
         }
 
         async Task ReadQueuedAnnoucementsAsync()
         {
             await infrabelService.NmbsService.ReadQueueAsync();
-        }
-
-        async Task SummarizeAnnouncementItemsAsync(List<string> announcements)
-        {
-            if (isSummarizing) { return; }
-
-            isSummarizing = true;
-
-            lblInfo.Content = "";
-
-            foreach (string announcement in announcements)
-            {
-
-                lblInfo.Content = $"📢 Opgelet: {announcement}";
-                await Task.Delay(10000);
-            }
-
-            isSummarizing = false;
         }
 
         void PopulateStationsList()
