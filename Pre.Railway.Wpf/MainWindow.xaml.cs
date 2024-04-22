@@ -173,8 +173,6 @@ namespace Pre.Railway.Wpf
                 List<Train> liveBoard = infrabelService.CurrentLiveBoard;
                 dgrTrains.ItemsSource = liveBoard;
 
-                //await ReadSpeechAnnouncementItemsAsync();
-
                 infrabelService.ReportCurrentStationDelays();
                 infrabelService.CompareCurrentWithDepartureTime(clock);
 
