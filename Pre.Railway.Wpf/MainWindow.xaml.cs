@@ -93,9 +93,10 @@ namespace Pre.Railway.Wpf
             var departedTrain = e.DepartedTrain;
             var departedTrains = e.NmbsService.DepartedTrains;
 
-            var result = departedTrains.Any(t => t.DepartureTime == departedTrain.DepartureTime && t.Destination == departedTrain.Destination);
+            //var result = departedTrains.Any(t => t.DepartureTime == departedTrain.DepartureTime && t.Destination == departedTrain.Destination);
+            var alreadyAnnounced = departedTrains.Any(t => t.Equals(departedTrain));
 
-            if (!result)
+            if (!alreadyAnnounced)
             {
                 e.NmbsService.DepartedTrains.Add(e.DepartedTrain);
                 UpdateLiveBoardAsync(e.NmbsService);
@@ -108,11 +109,11 @@ namespace Pre.Railway.Wpf
             var delayedTrain = e.DelayedTrain;
             var delayedTrains = e.NmbsService.Delays;
 
-            var result = delayedTrains.Any(t => t.DepartureTime == delayedTrain.DepartureTime && t.Destination == delayedTrain.Destination && t.Delay == delayedTrain.Delay);
+            //var result = delayedTrains.Any(t => t.DepartureTime == delayedTrain.DepartureTime && t.Destination == delayedTrain.Destination && t.Delay == delayedTrain.Delay);
 
             var alreadyAnnounced = delayedTrains.Any(t => t.Equals(delayedTrain));
 
-            if (!result)
+            if (!alreadyAnnounced)
             {
                 e.NmbsService.Delays.Add(e.DelayedTrain);
                 UpdateLiveBoardAsync(e.NmbsService);
@@ -196,7 +197,7 @@ namespace Pre.Railway.Wpf
             nmbsService.UpdateLogFileAnnouncements();
 
             var announcements = nmbsService.LiveBoardAnnouncements.ToList();
-          
+
             await SummarizeAnnouncementItemsAsync(announcements);
 
             if (!nmbsService.Speaking)
@@ -204,6 +205,9 @@ namespace Pre.Railway.Wpf
                 await ReadQueuedAnnoucementsAsync();
 
             }
+
+            //Task.WhenAll(SummarizeAnnouncementItemsAsync(announcements), ReadQueuedAnnoucementsAsync());
+
         }
 
         async Task ReadSpeechAnnouncementItemsAsync()
