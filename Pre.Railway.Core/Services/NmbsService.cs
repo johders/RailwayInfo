@@ -43,9 +43,9 @@ namespace Pre.Railway.Core.Services
         {
             Delays.Clear();
             DepartedTrains.Clear();
-            LiveBoardAnnouncements.Clear();
             AnnouncedDelay.Clear();
             AnnouncedDeparture.Clear();
+            LiveBoardAnnouncements.Clear();
         }
 
         public List<string> FilterAnnouncements()
@@ -93,21 +93,21 @@ namespace Pre.Railway.Core.Services
 
         }
 
-        public void UpdateLiveBoardAnnouncements()
-        {
+        //public void UpdateLiveBoardAnnouncements()
+        //{
 
-            LiveBoardAnnouncements.Clear();
+        //    LiveBoardAnnouncements.Clear();
 
-            foreach (Train train in Delays)
-            {
-                LiveBoardAnnouncements.Add(FormatTrainDelayEventInfo(train));
-            }
+        //    foreach (Train train in Delays)
+        //    {
+        //        LiveBoardAnnouncements.Add(FormatTrainDelayEventInfo(train));
+        //    }
 
-            foreach (Train train in DepartedTrains)
-            {
-                LiveBoardAnnouncements.Add(FormatTrainDepartedEventInfo(train));
-            }
-        }
+        //    foreach (Train train in DepartedTrains)
+        //    {
+        //        LiveBoardAnnouncements.Add(FormatTrainDepartedEventInfo(train));
+        //    }
+        //}
 
         public void UpdateSpeechAnnouncements()
         {
@@ -128,12 +128,14 @@ namespace Pre.Railway.Core.Services
         public void UpdateLogFileAnnouncements()
         {
             LogAnnouncements.Clear();
+            //LiveBoardAnnouncements.Clear();
 
             foreach (Train train in Delays)
             {
                 if (!AnnouncedDelay.Contains(train))
                 {
                     LogAnnouncement(FormatTrainDelayEventInfo(train));
+                    LiveBoardAnnouncements.Add(FormatTrainDelayEventInfo(train));
                     AnnouncedDelay.Add(train);
                 }
             }
@@ -143,12 +145,12 @@ namespace Pre.Railway.Core.Services
                 if (!AnnouncedDeparture.Contains(train))
                 {
                     LogAnnouncement(FormatTrainDepartedEventInfo(train));
+                    LiveBoardAnnouncements.Add(FormatTrainDepartedEventInfo(train));
                     AnnouncedDeparture.Add(train);
                 }
             }
 
             var result = LogAnnouncements;
-
 
             WriteToLogFile();
         }

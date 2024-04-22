@@ -178,7 +178,7 @@ namespace Pre.Railway.Wpf
                 List<Train> liveBoard = infrabelService.CurrentLiveBoard;
                 dgrTrains.ItemsSource = liveBoard;
 
-                await ReadSpeechAnnouncementItemsAsync();
+                //await ReadSpeechAnnouncementItemsAsync();
 
                 infrabelService.ReportCurrentStationDelays();
                 infrabelService.CompareCurrentWithDepartureTime(clock);
@@ -190,24 +190,39 @@ namespace Pre.Railway.Wpf
             }
         }
 
-        async Task UpdateLiveBoardAsync(NmbsService nmbsService)
+        private async Task UpdateLiveBoardAsync(NmbsService nmbsService)
         {
             
-            nmbsService.UpdateLiveBoardAnnouncements();
+            //nmbsService.UpdateLiveBoardAnnouncements();
             nmbsService.UpdateLogFileAnnouncements();
 
-            var announcements = nmbsService.LiveBoardAnnouncements.ToList();
+            var announcements = nmbsService.LiveBoardAnnouncements;
 
-            await SummarizeAnnouncementItemsAsync(announcements);
+            await Announce(announcements);
 
-            if (!nmbsService.Speaking)
-            {
-                await ReadQueuedAnnoucementsAsync();
+            //await SummarizeAnnouncementItemsAsync(announcements);
 
-            }
+            //var announcements = nmbsService.LiveBoardAnnouncements.ToList();
+
+            //await SummarizeAnnouncementItemsAsync(announcements);
+
+            //if (!nmbsService.Speaking)
+            //{
+            //    await ReadQueuedAnnoucementsAsync();
+
+            //}
 
             //Task.WhenAll(SummarizeAnnouncementItemsAsync(announcements), ReadQueuedAnnoucementsAsync());
 
+        }
+
+        async Task Announce(List<string> announcements)
+        {
+            foreach (string announcement in announcements)
+            {
+                lblInfo.Content = $"📢 Opgelet: {announcement}";
+                await Task.Delay(10000);
+            }
         }
 
         async Task ReadSpeechAnnouncementItemsAsync()
