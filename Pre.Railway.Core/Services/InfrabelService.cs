@@ -167,8 +167,7 @@ namespace Pre.Railway.Core.Services
             {
                 if (!String.IsNullOrEmpty(train.Delay))
                 {
-                    ReportDelayToNmbs?.Invoke(this, new ReportDelayEventArgs(NmbsService, train));
-                    
+                    ReportDelayToNmbs?.Invoke(this, new ReportDelayEventArgs(NmbsService, train));                  
                 }
             }
         }

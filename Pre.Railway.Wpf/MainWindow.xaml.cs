@@ -110,6 +110,8 @@ namespace Pre.Railway.Wpf
 
             var result = delayedTrains.Any(t => t.DepartureTime == delayedTrain.DepartureTime && t.Destination == delayedTrain.Destination && t.Delay == delayedTrain.Delay);
 
+            var alreadyAnnounced = delayedTrains.Any(t => t.Equals(delayedTrain));
+
             if (!result)
             {
                 e.NmbsService.Delays.Add(e.DelayedTrain);
