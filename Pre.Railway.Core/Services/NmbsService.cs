@@ -26,12 +26,10 @@ namespace Pre.Railway.Core.Services
 
         public List<string> SpeechAnnouncements { get; set; } = new List<string>();
         public bool Speaking { get; set; }
-
-        private List<string> newAnnouncements = new List<string>();
-
+        private List<string> allreadyRead = new List<string>();
+        private int speechHelper = 0;
         public string LogFilePath { get; private set; }
 
-        PromptBuilder promptBuilder = new PromptBuilder();
         PromptBuilder promptBuilderQueue = new PromptBuilder();
 
         public void ChangeLogPath(string station)
@@ -47,12 +45,12 @@ namespace Pre.Railway.Core.Services
             AnnouncedDeparture.Clear();
             LiveBoardAnnouncements.Clear();
             SpeechAnnouncements.Clear();
+            speechHelper = 0;
         }
 
         public void UpdateLogFileAndLiveBoardAnnouncements()
         {
             LogAnnouncements.Clear();
-            //SpeechAnnouncements.Clear();
 
             foreach (Train train in Delays)
             {
@@ -75,8 +73,6 @@ namespace Pre.Railway.Core.Services
                     AnnouncedDeparture.Add(train);
                 }
             }
-
-            var result = LogAnnouncements;
 
             WriteToLogFile();
         }
@@ -140,7 +136,7 @@ namespace Pre.Railway.Core.Services
             testSynth.SpeakAsync(text);
         }
 
-        private List<string> allreadyRead = new List<string>();
+        
         public async Task ReadQueueAsync()
         {
 
@@ -153,9 +149,19 @@ namespace Pre.Railway.Core.Services
 
             promptBuilderQueue.ClearContent();
 
+            if(speechHelper == 1)
+            {
+                toBeRead.RemoveAt(0);
+            }
+
             foreach (string announcement in toBeRead)
             {
-                if(!allreadyRead.Contains(announcement))
+                if(speechHelper == 1)
+                {
+                    promptBuilderQueue.AppendText(announcement);
+                    promptBuilderQueue.AppendBreak(PromptBreak.Medium);
+                }
+                if (!allreadyRead.Contains(announcement))
                 {
                     promptBuilderQueue.AppendText(announcement);
                     promptBuilderQueue.AppendBreak(PromptBreak.Medium);
@@ -170,12 +176,19 @@ namespace Pre.Railway.Core.Services
                 queueSynth.SpeakAsync(promptBuilderQueue);
                 queueSynth.SpeakCompleted += QueueSynth_SpeakCompleted;
             }
-            
+
         }
+        
 
         private void QueueSynth_SpeakCompleted(object sender, SpeakCompletedEventArgs e)
         {
             Speaking = false;
+            speechHelper++;
+            if (speechHelper == 1)
+            {
+                ReadQueueAsync();
+                speechHelper++;
+            }
         }
 
     }
