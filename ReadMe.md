@@ -1,4 +1,23 @@
-# PRE - PE Station observation
+# PRE - PE Station observation (Semester 2 - Apr 2024)
+
+## Intro
+
+In this C# WPF project, I created a live train status and departure information board using the iRail API.
+
+## Learning objectives
+
+- Use of C# streams (Input/Output operations)
+  - Stream Writer for logging events
+  - Web API calls to get train status data from the iRail API
+  - Voice synthesis with C# Text-To-Speech
+- Learn to work with Async/Await
+- Converting json into C# objects
+- Use of LINQ to filter search results and map to other object models
+- Use of delegates
+- Learn to use events with custom EventArgs classes
+- Write extension methods
+
+# Original assignment instructions (NL):
 
 ## Algemeen
 
